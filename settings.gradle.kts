@@ -1,24 +1,13 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()          // НИЈЕ потребан content‑filter – он уме да сакрије AGP
         mavenCentral()
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-dependencyResolutionManagement {
+
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
@@ -26,9 +15,5 @@ dependencyResolutionManagement {
     }
 }
 
-
-
-
-rootProject.name = "Lotto Combination Finder"
+rootProject.name = "LottoCombinationFinder"
 include(":app")
- 
