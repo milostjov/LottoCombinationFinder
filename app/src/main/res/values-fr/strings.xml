@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Combinaison Loto</string>
+    <string name="enter_birth_date">Entrez la date de naissance :</string>
+    <string name="confirm_date">Confirmer la date</string>
+    <string name="enter_birth_time">Entrez l\'heure de naissance :</string>
+    <string name="hour">Heure</string>
+    <string name="minute">Minute</string>
+    <string name="enter_location">Entrez la position géographique :</string>
+    <string name="latitude">Lat</string>
+    <string name="longitude">Lon</string>
+    <string name="select_house_system">Choisir le système de maisons :</string>
+    <string name="confirm">Confirmer</string>
+    <string name="birth_date">Date de naissance</string>
+    <string name="birth_time">Heure de naissance</string>
+    <string name="enter_birth_city">Entrez la ville de naissance</string>
+    <string name="select_precisely_on_map">Sélectionnez précisément sur la carte</string>
+</resources>

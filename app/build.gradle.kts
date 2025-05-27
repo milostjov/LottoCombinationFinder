@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.bsh.commands.dir
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.zoqo.lottocombinationfinder"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 2
         versionName = "1.1"
@@ -41,6 +43,7 @@ android {
     }
 
     buildFeatures {
+        viewBinding = true
         compose = true
     }
 
@@ -55,7 +58,20 @@ android {
     }
 }
 
+
+
 dependencies {
+
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.material.icons.extended)
+
+    implementation(libs.maplibre)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.play.services.location)
+
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -67,6 +83,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.accompanist.flowlayout)
     implementation(libs.play.services.ads)
+    implementation(libs.androidx.compose.material.core)
+    implementation(libs.androidx.navigation.common.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

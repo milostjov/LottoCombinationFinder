@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">Lotto Combination Finder</string>
+    <string name="enter_birth_date">Enter birth date:</string>
+    <string name="confirm_date">Confirm date</string>
+    <string name="enter_birth_time">Enter birth time:</string>
+    <string name="hour">Hour</string>
+    <string name="minute">Minute</string>
+    <string name="enter_location">Enter location:</string>
+    <string name="latitude">Lat</string>
+    <string name="longitude">Lon</string>
+    <string name="select_house_system">Select house system:</string>
+    <string name="confirm">Confirm</string>
+    <string name="birth_date">Birth Date</string>
+    <string name="birth_time">Birth Time</string>
+    <string name="enter_birth_city">Enter city of birth</string>
+    <string name="select_precisely_on_map">Select on Map</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="astro_setings">Astro Settings</string>
+    <string name="error_invalid_total_choose">Invalid input for total numbers or numbers to choose.</string>
+    <string name="error_invalid_rank">Invalid rank. Enter a number between 1 and %1$d</string>
+    <string name="result_combination">Combination: %1$s</string>
+    <string name="save_location">Save Location</string>
+
+
 </resources>

@@ -12,8 +12,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
     }
 }
 
+
 rootProject.name = "LottoCombinationFinder"
 include(":app")
+
+
+
+

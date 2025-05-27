@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Loto Kombinacije</string>
+    <string name="enter_birth_date">Unesite datum rođenja:</string>
+    <string name="confirm_date">Potvrdi datum</string>
+    <string name="enter_birth_time">Unesite vreme rođenja:</string>
+    <string name="hour">Sat</string>
+    <string name="minute">Minut</string>
+    <string name="enter_location">Unesite geografsku lokaciju:</string>
+    <string name="latitude">Lat</string>
+    <string name="longitude">Lon</string>
+    <string name="select_house_system">Izaberite sistem kuća:</string>
+    <string name="confirm">Potvrdi</string>
+    <string name="birth_date">Datum rođenja</string>
+    <string name="birth_time">Vreme rođenja</string>
+    <string name="enter_birth_city">Grad rođenja</string>
+    <string name="select_precisely_on_map">Nađi na mapi</string>
+
+</resources>

@@ -6,15 +6,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.zoqo.lottocombinationfinder.R
 import com.zoqo.lottocombinationfinder.components.GenerateButton
 import com.zoqo.lottocombinationfinder.components.LottoInputFields
 import com.zoqo.lottocombinationfinder.components.LottoResult
@@ -22,12 +27,17 @@ import com.zoqo.lottocombinationfinder.utils.calculateTotalCombinations
 import com.zoqo.lottocombinationfinder.utils.findCombination
 import java.math.BigInteger
 
+
 @Composable
-fun LottoApp(showRewardedAd: ((onReward: () -> Unit) -> Unit)) {
-    var rankInput by remember { mutableStateOf(TextFieldValue("")) }
+fun LottoApp(
+    showRewardedAd: ((onReward: () -> Unit) -> Unit),
+    onAstroSettingsClick: () -> Unit
+) {
+    var rankInput by remember { mutableStateOf(TextFieldValue("123456")) }
     var resultText by remember { mutableStateOf("") }
     var totalNumbers by remember { mutableStateOf(TextFieldValue("39")) }
     var numbersToChoose by remember { mutableStateOf(TextFieldValue("7")) }
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -59,23 +69,35 @@ fun LottoApp(showRewardedAd: ((onReward: () -> Unit) -> Unit)) {
 
                                 resultText = when {
                                     total == null || choose == null || total <= 0 || choose <= 0 || total < choose ->
-                                        "Invalid input for total numbers or numbers to choose."
+                                        context.getString(R.string.error_invalid_total_choose)
+
                                     rank == null || rank <= BigInteger.ZERO || rank > calculateTotalCombinations(total, choose) ->
-                                        "Invalid rank. Enter a number between 1 and ${calculateTotalCombinations(total, choose)}"
+                                        context.getString(R.string.error_invalid_rank, calculateTotalCombinations(total, choose))
+
                                     else -> {
                                         val combination = findCombination(rank.toInt(), total, choose)
-                                        "Combination: ${combination.joinToString(", ")}"
+                                        context.getString(R.string.result_combination, combination.joinToString(", "))
                                     }
                                 }
+
+                                }
+                            }
+                            )
+
+                            LottoResult(resultText)
+
+                            // Dugme za otvaranje astro podešavanja
+                            Button(
+                                onClick = onAstroSettingsClick,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.astro_setings))
                             }
                         }
-                    )
 
-                    LottoResult(resultText)
+                                BannerAdView()
                 }
-
-                BannerAdView()
             }
+            )
         }
-    )
-}
+
