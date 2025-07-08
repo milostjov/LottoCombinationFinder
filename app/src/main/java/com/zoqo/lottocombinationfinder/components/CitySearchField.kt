@@ -3,10 +3,14 @@ package com.zoqo.lottocombinationfinder.components
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.zoqo.lottocombinationfinder.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,7 +26,7 @@ fun CitySearchField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Enter city",
+    label: String = stringResource(R.string.enter_city),
     onCitySelected: (CitySuggestion) -> Unit
 ) {
     var internalText by remember { mutableStateOf(value) }
@@ -58,6 +62,12 @@ fun CitySearchField(
                 }
             },
             label = { Text(label) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "Location Icon"
+                )
+            },
             modifier = Modifier.fillMaxWidth()
         )
 

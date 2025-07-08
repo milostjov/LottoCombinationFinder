@@ -1,8 +1,12 @@
+//AstroRankCalculator.kt
 package com.zoqo.lottocombinationfinder.components
 
+
+import com.zoqo.lottocombinationfinder.utils.calculateTotalCombinations
 import swisseph.SwissEph
 import swisseph.SweDate
 import swisseph.SweConst
+import java.math.BigInteger
 import java.time.LocalDate
 
 object AstroRankCalculator {
@@ -17,8 +21,10 @@ object AstroRankCalculator {
     fun calculateRankFromSunSign(
         birthDate: LocalDate,
         birthHour: Int,
-        birthMinute: Int
-    ): Int {
+        birthMinute: Int,
+        totalNumbers: Int,
+        numbersToChoose: Int
+    ): BigInteger {
         val timeDecimal = toDecimalTime(birthHour, birthMinute)
 
         val date = SweDate()
@@ -40,14 +46,21 @@ object AstroRankCalculator {
 
         if (result == SweConst.ERR) {
             println("Swiss Ephemeris error: $errorMsg")
-            return 0
+            return BigInteger.ONE
         }
 
         val longitude = position[0]
-        val zodiacSign = (longitude / 30).toInt()
+        val normalizedPos = (longitude % 360.0) / 360.0
 
-        return (zodiacSign * 3 + 7) % 39 + 1
+        val totalCombinations = calculateTotalCombinations(totalNumbers, numbersToChoose)
+        val rankDecimal = normalizedPos * totalCombinations.toDouble()
+
+        val rankBig = rankDecimal.toBigDecimal().toBigInteger().plus(BigInteger.ONE)
+
+        return rankBig.coerceIn(BigInteger.ONE, totalCombinations)
     }
+}
+
 
     private fun toDecimalTime(hour: Int, minute: Int): Double {
         return hour / 24.0 + minute / 1440.0
@@ -56,4 +69,4 @@ object AstroRankCalculator {
 
 
 
-}
+

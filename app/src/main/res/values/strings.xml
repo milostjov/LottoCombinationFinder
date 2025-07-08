@@ -8,19 +8,39 @@
     <string name="enter_location">Enter location:</string>
     <string name="latitude">Lat</string>
     <string name="longitude">Lon</string>
-    <string name="select_house_system">Select house system:</string>
+    <string name="select_house_system">Select House System</string>
     <string name="confirm">Confirm</string>
-    <string name="birth_date">Birth Date</string>
-    <string name="birth_time">Birth Time</string>
+    <string name="birth_date">Ephemeris Date</string>
+    <string name="birth_time">Ephemeris Time</string>
     <string name="enter_birth_city">Enter city of birth</string>
     <string name="select_precisely_on_map">Select on Map</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="astro_setings">Astro Settings</string>
+    <string name="astro_setings">Swiss Ephemeris Settings</string>
     <string name="error_invalid_total_choose">Invalid input for total numbers or numbers to choose.</string>
     <string name="error_invalid_rank">Invalid rank. Enter a number between 1 and %1$d</string>
     <string name="result_combination">Combination: %1$s</string>
     <string name="save_location">Save Location</string>
+    <string name="total_numbers">Total Numbers</string>
+    <string name="numbers_to_choose">Numbers to Choose</string>
+    <string name="enter_rank_hint">Enter Rank (e.g. Your Date of Birth)</string>
+    <string name="or_generate_rank_num">Or Generate a Rank Number Using Swiss Ephemeris</string>
+    <string name="enter_city">Enter Location (City) for Ephemeris</string>
+    <string name="city_prefix">City: %1$s</string>
+    <string name="city_not_set">City not set</string>
+    <string name="find_combination">Find Combination</string>
+    <string name="or_prefix">Or</string>
+    <string name="back_prefix">Back</string>
+    <string name="home">Home</string>
+    <string name="lat_lon_format">Selected location: Lat: %1$.5f, Lon: %2$.5f</string>
+    <string name="zodiac_type">Zodiac type</string>
+    <string name="ayanamsa">Ayanamsa</string>
+    <string name="ephemeris_type">Ephemeris type</string>
+    <string name="day_night_mode">Day/Night mode</string>
+    <string name="orb_tolerance">Orb tolerance (°)</string>
+    <string name="time_zone">Time Zone</string>
+    <string name="manual_time_zone">Manual time zone (optional)</string>
+    <string name="extra_bodies">Extra Bodies (comma-separated)</string>
 
 
 </resources>

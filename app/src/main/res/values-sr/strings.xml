@@ -15,5 +15,21 @@
     <string name="birth_time">Vreme rođenja</string>
     <string name="enter_birth_city">Grad rođenja</string>
     <string name="select_precisely_on_map">Nađi na mapi</string>
+    <string name="ok">U redu</string>
+    <string name="cancel">Otkaži</string>
+    <string name="astro_setings">Swiss Ephemeris podešavanja</string>
+    <string name="error_invalid_total_choose">Neispravan unos za ukupan broj ili broj za izbor.</string>
+    <string name="error_invalid_rank">Neispravan rang. Unesite broj između 1 i %1$d</string>
+    <string name="result_combination">Kombinacija: %1$s</string>
+    <string name="save_location">Sačuvaj lokaciju</string>
+    <string name="total_numbers">Ukupan broj</string>
+    <string name="numbers_to_choose">Broj za izbor</string>
+    <string name="enter_rank_hint">Unesite rang (npr. vaš datum rođenja)</string>
+    <string name="or_generate_rank_num">Ili generiši rang koristeći Swiss Ephemeris</string>
+    <string name="enter_city">Unesite grad</string>
+    <string name="city_prefix">Grad: %1$s</string>
+    <string name="city_not_set">Grad nije postavljen</string>
+    <string name="find_combination">Pronađi kombinaciju</string>
+    <string name="or_prefix">ili</string>
 
 </resources>

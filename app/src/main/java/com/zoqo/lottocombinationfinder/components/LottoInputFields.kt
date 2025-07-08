@@ -3,12 +3,16 @@ package com.zoqo.lottocombinationfinder.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.zoqo.lottocombinationfinder.R
 
 @Composable
 fun LottoInputFields(
@@ -20,23 +24,30 @@ fun LottoInputFields(
     onRankInputChange: (TextFieldValue) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        TextField(
+        OutlinedTextField(
             value = totalNumbers,
             onValueChange = onTotalNumbersChange,
-            label = { Text("Total numbers") },
+            label = { Text(stringResource(R.string.total_numbers)) },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
-        TextField(
+
+        OutlinedTextField(
             value = numbersToChoose,
             onValueChange = onNumbersToChooseChange,
-            label = { Text("Numbers to choose") },
+            label = { Text(stringResource(R.string.numbers_to_choose)) },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
-        TextField(
+
+        OutlinedTextField(
             value = rankInput,
             onValueChange = onRankInputChange,
-            label = { Text("Enter rank (e.g. your date of birth)") },
+            label = { Text(stringResource(R.string.enter_rank_hint)) },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
     }
+
+
 }

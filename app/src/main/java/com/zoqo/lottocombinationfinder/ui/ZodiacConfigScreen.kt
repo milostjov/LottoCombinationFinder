@@ -1,3 +1,4 @@
+//ZodiacConfigScreen.kt
 package com.zoqo.lottocombinationfinder.ui
 
 import android.app.TimePickerDialog
@@ -54,8 +55,15 @@ import java.time.LocalDate
 import java.time.ZoneId
 import com.zoqo.lottocombinationfinder.ui.BannerAdView
 import android.location.Geocoder
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.text.input.KeyboardType
+import com.zoqo.lottocombinationfinder.components.TimeZoneHelper
 import org.maplibre.android.geometry.LatLng
+import java.time.ZoneOffset
 import java.util.Locale
 
 
@@ -66,7 +74,7 @@ fun AstroUserInputScreen(
     onOpenMap: (Double, Double) -> Unit,
     initialLat: Double,
     initialLon: Double,
-    //pickedLocation: LatLng?
+
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -77,6 +85,23 @@ fun AstroUserInputScreen(
 
     var latitude  by remember { mutableStateOf(initialLat) }
     var longitude by remember { mutableStateOf(initialLon) }
+    ////
+    // u AstroUserInputScreen
+    var zodiacType by remember { mutableStateOf("tropical") }
+    var ayanamsa by remember { mutableStateOf("lahiri") }
+    var ephemerisType by remember { mutableStateOf("swisseph") }
+    var orb by remember { mutableStateOf(6.0) }
+    var dayNightMode by remember { mutableStateOf("diurnal") }
+    var timeZoneId by remember { mutableStateOf(ZoneId.systemDefault().id) }
+ //   var extraBodies by remember { mutableStateOf(listOf("Ceres","Chiron")) }
+    var extraBodies by remember { mutableStateOf(listOf<String>()) }
+    var extraBodiesText by remember { mutableStateOf("") }
+
+
+    /////
+
+
+
 
     LaunchedEffect(initialLat, initialLon) {
         latitude  = initialLat
@@ -98,6 +123,7 @@ fun AstroUserInputScreen(
     var showTimePicker by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     val selectedText = remember(selectedHouseSystem) { selectedHouseSystem.toString() }
+
     var cityName by remember { mutableStateOf("") }
 
     LaunchedEffect(latitude, longitude) {
@@ -120,6 +146,17 @@ fun AstroUserInputScreen(
             selectedHouseSystem = data.houseSystem
             cityName = data.cityName
 
+            // dopuni:
+            zodiacType = data.zodiacType ?: "tropical"
+            ayanamsa = data.ayanamsa ?: "lahiri"
+            ephemerisType = data.ephemerisType ?: "swisseph"
+            orb = data.orb ?: 6.0
+            dayNightMode = data.dayNightMode ?: "diurnal"
+            timeZoneId = data.timeZoneId ?: ZoneId.systemDefault().id
+           // extraBodies = data.extraBodies ?: listOf("Ceres","Chiron")
+            // OVO DODAJEŠ:
+            extraBodies = data.extraBodies ?: emptyList()
+            extraBodiesText = extraBodies.joinToString(", ")
             // reverse geocoding ako cityName nije sačuvan
             if (cityName.isBlank()) {
                 getCityName(context, data.latitude, data.longitude)?.let {
@@ -128,21 +165,14 @@ fun AstroUserInputScreen(
         }
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            BannerAdView()
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(stringResource(R.string.enter_birth_date))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+            //Text(stringResource(R.string.enter_birth_date))
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -183,7 +213,7 @@ fun AstroUserInputScreen(
                 }
             }
 
-            Text(stringResource(R.string.enter_birth_time))
+            //Text(stringResource(R.string.enter_birth_time))
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -218,7 +248,7 @@ fun AstroUserInputScreen(
                 ).show()
             }
 
-            Text(stringResource(R.string.enter_birth_city))
+            //Text(stringResource(R.string.enter_birth_city))
 
             CitySearchField(
                 value = cityName,
@@ -235,7 +265,7 @@ fun AstroUserInputScreen(
                 }
             )
 
-
+            Text(stringResource(R.string.or_prefix))
 
             Button(
                 onClick = {
@@ -247,25 +277,24 @@ fun AstroUserInputScreen(
                         }
                     }
                 },
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
                 Text(stringResource(R.string.select_precisely_on_map))
             }
 
 
-            Text(
-                text = "Lat: %.5f, Lon: %.5f".format(latitude, longitude),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-            Text(
-                text = if (cityName.isNotBlank()) "City: $cityName" else "City not set",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(start = 8.dp)
-            )
+        val latLonText = context.getString(R.string.lat_lon_format, latitude, longitude)
+
+        Text(
+            text = latLonText,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(start = 8.dp)
+        )
 
 
-            Text(stringResource(R.string.select_house_system))
+         //   Text(stringResource(R.string.select_house_system))
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -300,21 +329,289 @@ fun AstroUserInputScreen(
                 }
             }
 
-            Button(onClick = {
-                val input = AstroInputData(
-                    birthDate, birthHour, birthMinute,
-                    latitude, longitude, selectedHouseSystem, cityName
+
+        // ZODIAC TYPE
+        var zodiacExpanded by remember { mutableStateOf(false) }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = zodiacType,
+                onValueChange = {},
+                label = { Text(stringResource(R.string.zodiac_type)) },
+                        readOnly = true,
+                enabled = true,
+                trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { zodiacExpanded = true }
+            )
+            DropdownMenu(
+                expanded = zodiacExpanded,
+                onDismissRequest = { zodiacExpanded = false }
+            ) {
+                listOf("tropical", "sideral").forEach {
+                    DropdownMenuItem(
+                        text = { Text(it.capitalize()) },
+                        onClick = {
+                            zodiacType = it
+                            zodiacExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+// AYANAMSA
+        var ayanamsaExpanded by remember { mutableStateOf(false) }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = ayanamsa,
+                onValueChange = {},
+                label = { Text(stringResource(R.string.ayanamsa)) },
+                readOnly = true,
+                enabled = true,
+                trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { ayanamsaExpanded = true }
+            )
+            DropdownMenu(
+                expanded = ayanamsaExpanded,
+                onDismissRequest = { ayanamsaExpanded = false }
+            ) {
+                listOf("lahiri", "krishnamurti", "fagan-bradley", "raman").forEach {
+                    DropdownMenuItem(
+                        text = { Text(it.capitalize()) },
+                        onClick = {
+                            ayanamsa = it
+                            ayanamsaExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+// EPHEMERIS TYPE
+        var ephExpanded by remember { mutableStateOf(false) }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = ephemerisType,
+                onValueChange = {},
+                label = { Text(stringResource(R.string.ephemeris_type)) },
+                readOnly = true,
+                enabled = true,
+                trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { ephExpanded = true }
+            )
+            DropdownMenu(
+                expanded = ephExpanded,
+                onDismissRequest = { ephExpanded = false }
+            ) {
+                listOf("swisseph", "jpl", "moshier").forEach {
+                    DropdownMenuItem(
+                        text = { Text(it.capitalize()) },
+                        onClick = {
+                            ephemerisType = it
+                            ephExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+// DAY/NIGHT
+        var dayNightExpanded by remember { mutableStateOf(false) }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = dayNightMode,
+                onValueChange = {},
+                label = { Text(stringResource(R.string.day_night_mode)) },
+                readOnly = true,
+                enabled = true,
+                trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { dayNightExpanded = true }
+            )
+            DropdownMenu(
+                expanded = dayNightExpanded,
+                onDismissRequest = { dayNightExpanded = false }
+            ) {
+                listOf("diurnal", "nocturnal").forEach {
+                    DropdownMenuItem(
+                        text = { Text(it.capitalize()) },
+                        onClick = {
+                            dayNightMode = it
+                            dayNightExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+// ORB TOLERANCE
+        OutlinedTextField(
+            value = orb.toString(),
+            onValueChange = {
+                it.toDoubleOrNull()?.let { newOrb ->
+                    orb = newOrb
+                }
+            },
+            label = { Text(stringResource(R.string.orb_tolerance)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+// TIMEZONE
+        val utcOffsets = remember { TimeZoneHelper.getUtcOffsets() }
+
+        var tzExpanded by remember { mutableStateOf(false) }
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = timeZoneId,
+                onValueChange = {},
+                label = { Text(stringResource(R.string.time_zone)) },
+                readOnly = true,
+                trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { tzExpanded = true }
+            )
+            DropdownMenu(
+                expanded = tzExpanded,
+                onDismissRequest = { tzExpanded = false }
+            ) {
+                utcOffsets.forEach { zone ->
+                    DropdownMenuItem(
+                        text = { Text(zone) },
+                        onClick = {
+                            // Pretvori npr. "UTC+5.5" → +05:30
+                            val offsetStr = zone.removePrefix("UTC")
+                            val offsetHours = offsetStr.toDoubleOrNull() ?: 0.0
+                            val totalSeconds = (offsetHours * 3600).toInt()
+                            timeZoneId = ZoneOffset.ofTotalSeconds(totalSeconds).id
+                            tzExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+
+
+// EXTRA BODIES
+        val allExtraBodies = listOf(
+            "Sun", "Moon", "Mercury", "Venus", "Mars",
+            "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
+            "Chiron", "Pholus", "Ceres", "Pallas", "Juno",
+            "Vesta", "Eris", "Hygiea", "Lilith", "Mean Node", "True Node"
+        )
+
+        //var extraBodies by remember { mutableStateOf(listOf<String>()) }
+        //var extraBodiesText by remember { mutableStateOf("") }
+        var extraDropdownExpanded by remember { mutableStateOf(false) }
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = extraBodiesText,
+                onValueChange = { text ->
+                    extraBodiesText = text
+                    extraBodies = text
+                        .split(",")
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                },
+                label = { Text(stringResource(R.string.extra_bodies)) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add extra body",
+                        modifier = Modifier.clickable { extraDropdownExpanded = true }
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text,
+                    //autoCorrect = false
                 )
+            )
+
+
+            DropdownMenu(
+                expanded = extraDropdownExpanded,
+                onDismissRequest = { extraDropdownExpanded = false }
+            ) {
+                allExtraBodies.forEach { body ->
+                    DropdownMenuItem(
+                        text = { Text(body) },
+                        onClick = {
+                            if (!extraBodies.contains(body)) {
+                                extraBodies = extraBodies + body
+                                extraBodiesText = extraBodies.joinToString(", ")
+                            }
+                            extraDropdownExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+
+
+        Button(
+            onClick = {
+                val input = AstroInputData(
+                    date = birthDate,
+                    hour = birthHour,
+                    minute = birthMinute,
+                    latitude = latitude,
+                    longitude = longitude,
+                    houseSystem = selectedHouseSystem,
+                    cityName = cityName,
+                    timeZoneId = timeZoneId,
+                    zodiacType = zodiacType,
+                    ayanamsa = ayanamsa,
+                    ephemerisType = ephemerisType,
+                    extraBodies = extraBodies,
+                    orb = orb,
+                    dayNightMode = dayNightMode
+                )
+
                 scope.launch {
                     AstroPreferencesManager.save(context, input)
                 }
                 onConfirm(input)
-            }) {
-                Text(stringResource(R.string.confirm))
-            }
+            },
+            modifier = Modifier
+                .fillMaxWidth()                 // ⬅ Dodato
+                .padding(vertical = 8.dp)       // ⬅ Možeš dodati i padding ako želiš razmak
+        ) {
+            Text(stringResource(R.string.confirm))
+        }
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        BannerAdView()
         }
     }
-}
+
 
 
 
@@ -342,7 +639,15 @@ data class AstroInputData(
     val latitude: Double,
     val longitude: Double,
     val houseSystem: AstroHouseSystem,
-    val cityName: String
+    val cityName: String,
+
+    val timeZoneId: String? = null,            // npr. Europe/Belgrade
+    val zodiacType: String? = null,            // tropical / sideral
+    val ayanamsa: String? = null,              // Lahiri, Raman...
+    val ephemerisType: String? = null,         // swisseph / jpl / moshier
+    val extraBodies: List<String>? = null,     // npr. ["Ceres","Chiron"]
+    val orb: Double? = null,                   // aspekt tolerancija
+    val dayNightMode: String? = null           // diurnal / nocturnal
 )
 
 enum class AstroHouseSystem(val code: Char) {
