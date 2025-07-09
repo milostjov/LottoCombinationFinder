@@ -3,6 +3,7 @@ package com.zoqo.lottocombinationfinder
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -56,16 +57,26 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.zoqo.lottocombinationfinder.ui.NoInternetDialog
+import com.zoqo.lottocombinationfinder.ui.hasInternetConnection
 
 class MainActivity : ComponentActivity() {
 
     private val TAG = "MainActivity"
     private var hasShownStartupAd = false
-
-
+    private var lastBackPressTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!hasInternetConnection()) {
+            setContent {
+                LottoCombinationFinderTheme {
+                    NoInternetDialog(onRetry = { recreate() })
+                }
+            }
+            return
+        }
 
         hasShownStartupAd = savedInstanceState?.getBoolean("shown_ad") ?: false
 
@@ -81,10 +92,6 @@ class MainActivity : ComponentActivity() {
             showMainUI()
         }
     }
-
-
-
-
 
     private fun initMapLibre() {
         MapLibre.getInstance(
@@ -121,9 +128,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-
-
 
     private fun loadAdWithTimeout() {
         val scope = CoroutineScope(Dispatchers.Main)
@@ -163,8 +167,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-
     private fun preloadOtherAds() {
         AdHelper.loadRewardedAd(this)
         AdHelper.loadExitInterstitialAd(this)
@@ -181,25 +183,33 @@ class MainActivity : ComponentActivity() {
 
                 BackHandler {
                     if (currentDestination == "lotto") {
-                        val ad = AdHelper.exitInterstitialAd
-                        if (ad != null) {
-                            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-                                override fun onAdDismissedFullScreenContent() {
-                                    (this@MainActivity).finish()
-                                }
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastBackPressTime < 3000) {
+                            val ad = AdHelper.exitInterstitialAd
+                            if (ad != null) {
+                                ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                                    override fun onAdDismissedFullScreenContent() {
+                                        this@MainActivity.finish()
+                                    }
 
-                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                    (this@MainActivity).finish()
+                                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                        this@MainActivity.finish()
+                                    }
                                 }
+                                ad.show(this@MainActivity)
+                            } else {
+                                finish()
                             }
-                            ad.show(this@MainActivity)
                         } else {
-                            finish()
+                            lastBackPressTime = currentTime
+                            Toast.makeText(this@MainActivity, getString(R.string.press_back_again_to_exit), Toast.LENGTH_SHORT).show()
+
                         }
                     } else {
                         navController.popBackStack()
                     }
                 }
+
 
                 Scaffold(
                     topBar = {
@@ -364,14 +374,11 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            }
         }
-
-
+    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("shown_ad", hasShownStartupAd)
     }
-
 }

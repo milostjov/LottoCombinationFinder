@@ -72,8 +72,8 @@ object AstroPreferencesManager {
 
             val hour = prefs[HOUR_KEY] ?: 12
             val minute = prefs[MINUTE_KEY] ?: 0
-            val lat = prefs[LAT_KEY] ?: 44.0
-            val lon = prefs[LON_KEY] ?: 20.0
+            val lat = prefs[LAT_KEY] ?: 40.7128
+            val lon = prefs[LON_KEY] ?: -74.0060
             val cityName = prefs[CITY_NAME_KEY] ?: ""
 
             val house = prefs[HOUSE_KEY]?.let {
@@ -81,13 +81,20 @@ object AstroPreferencesManager {
             } ?: AstroHouseSystem.PLACIDUS
 
             // dodatna polja
-            val timeZoneId = prefs[TIMEZONE_KEY]
-            val zodiacType = prefs[ZODIAC_TYPE_KEY]
-            val ayanamsa = prefs[AYANAMSA_KEY]
-            val ephemerisType = prefs[EPHEMERIS_TYPE_KEY]
-            val extraBodies = prefs[EXTRA_BODIES_KEY]?.split(",")?.filter { it.isNotBlank() }
-            val orb = prefs[ORBS_KEY]
-            val dayNightMode = prefs[DAY_NIGHT_KEY]
+            val timeZoneId = prefs[TIMEZONE_KEY] ?: ZoneId.systemDefault().id
+            val zodiacType = prefs[ZODIAC_TYPE_KEY] ?: "tropical"
+            val ayanamsa = prefs[AYANAMSA_KEY] ?: "lahiri"
+            val ephemerisType = prefs[EPHEMERIS_TYPE_KEY] ?: "swisseph"
+            val extraBodies = prefs[EXTRA_BODIES_KEY]
+                ?.split(",")
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() }
+                ?: listOf("Mercury", "Chiron")
+            val orb = prefs[ORBS_KEY] ?: 6.0
+            val dayNightMode = prefs[DAY_NIGHT_KEY] ?: "diurnal"
+
+
+
 
             AstroInputData(
                 date = date,

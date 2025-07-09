@@ -1,21 +1,24 @@
 //ZodiacConfigScreen.kt
 package com.zoqo.lottocombinationfinder.ui
 
-import android.app.TimePickerDialog
+
 import android.content.Context
-import android.text.format.DateFormat.is24HourFormat
-import androidx.compose.foundation.background
+import android.location.Geocoder
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Schedule
@@ -28,7 +31,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -42,9 +44,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.zoqo.lottocombinationfinder.R
 import com.zoqo.lottocombinationfinder.components.CitySearchField
+import com.zoqo.lottocombinationfinder.components.TimeZoneHelper
 import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -53,19 +57,9 @@ import java.text.DateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import com.zoqo.lottocombinationfinder.ui.BannerAdView
-import android.location.Geocoder
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.text.input.KeyboardType
-import com.zoqo.lottocombinationfinder.components.TimeZoneHelper
-import org.maplibre.android.geometry.LatLng
 import java.time.ZoneOffset
 import java.util.Locale
-
+import com.zoqo.lottocombinationfinder.ui.CustomTimePickerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,18 +81,14 @@ fun AstroUserInputScreen(
     var longitude by remember { mutableStateOf(initialLon) }
     ////
     // u AstroUserInputScreen
-    var zodiacType by remember { mutableStateOf("tropical") }
-    var ayanamsa by remember { mutableStateOf("lahiri") }
-    var ephemerisType by remember { mutableStateOf("swisseph") }
-    var orb by remember { mutableStateOf(6.0) }
-    var dayNightMode by remember { mutableStateOf("diurnal") }
-    var timeZoneId by remember { mutableStateOf(ZoneId.systemDefault().id) }
- //   var extraBodies by remember { mutableStateOf(listOf("Ceres","Chiron")) }
-    var extraBodies by remember { mutableStateOf(listOf<String>()) }
+    var zodiacType by remember { mutableStateOf("") }
+    var ayanamsa by remember { mutableStateOf("") }
+    var ephemerisType by remember { mutableStateOf("") }
+    var orb by remember { mutableStateOf(0.0) }
+    var dayNightMode by remember { mutableStateOf("") }
+    var timeZoneId by remember { mutableStateOf("") }
+    var extraBodies by remember { mutableStateOf(emptyList<String>()) }
     var extraBodiesText by remember { mutableStateOf("") }
-
-
-    /////
 
 
 
@@ -117,7 +107,7 @@ fun AstroUserInputScreen(
         DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date.valueOf(birthDate.toString()))
     }
 
-    val formattedTime = remember(birthHour, birthMinute) {
+    var formattedTime = remember(birthHour, birthMinute) {
         String.format("%02d:%02d", birthHour, birthMinute)
     }
     var showTimePicker by remember { mutableStateOf(false) }
@@ -215,38 +205,46 @@ fun AstroUserInputScreen(
 
             //Text(stringResource(R.string.enter_birth_time))
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = formattedTime,
-                    onValueChange = {},
-                    label = { Text(stringResource(R.string.birth_time)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    enabled = true,
-                    trailingIcon = {
-                        Icon(Icons.Filled.Schedule, contentDescription = null)
-                    }
-                )
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .clickable { showTimePicker = true }
-                )
-            }
+// 1️⃣  premesti state NA POČETAK composable bloka (pre Box-a)
+        var showTimePicker by remember { mutableStateOf(false) }
 
-            if (showTimePicker) {
-                TimePickerDialog(
-                    context,
-                    { _, hourOfDay, minute ->
-                        birthHour = hourOfDay
-                        birthMinute = minute
-                        showTimePicker = false
-                    },
-                    birthHour,
-                    birthMinute,
-                    is24HourFormat(context)
-                ).show()
-            }
+// 2️⃣  Box ostaje isti
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = formattedTime,
+                onValueChange = {},
+                label = { Text(stringResource(R.string.birth_time)) },
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true,
+                enabled = true,
+                trailingIcon = {
+                    Icon(Icons.Filled.Schedule, contentDescription = null)
+                }
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { showTimePicker = true }   // => radi
+            )
+        }
+
+// 3️⃣  Dijalog ostaje identičan
+        if (showTimePicker) {
+            CustomTimePickerDialog(
+                initialHour = birthHour,
+                initialMinute = birthMinute,
+                is24Hour = true,
+                onDismissRequest = { showTimePicker = false },
+                onTimeSelected = { hour, minute ->
+                    birthHour = hour
+                    birthMinute = minute
+                    formattedTime = String.format("%02d:%02d", hour, minute) // osveži prikaz
+                }
+            )
+        }
+
+
+
 
             //Text(stringResource(R.string.enter_birth_city))
 

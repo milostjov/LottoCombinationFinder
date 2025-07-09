@@ -18,6 +18,8 @@ composeMaterialCore = "1.4.1"
 playServicesLocation = "21.3.0"
 playServicesMaps = "19.2.0"
 navigationCommonAndroid = "2.9.0"
+material = "1.12.0"
+material3Jvmstubs = "1.4.0-alpha17"
 
 [libraries]
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -44,6 +46,8 @@ play-services-ads = { module = "com.google.android.gms:play-services-ads", versi
 androidx-compose-material-core = { group = "androidx.wear.compose", name = "compose-material-core", version.ref = "composeMaterialCore" }
 androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-material3-jvmstubs = { group = "androidx.compose.material3", name = "material3-jvmstubs", version.ref = "material3Jvmstubs" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

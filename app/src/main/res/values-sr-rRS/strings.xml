@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Лото Комбинације</string>
+    <string name="app_name">Астро Комбинације</string>
     <string name="enter_birth_date">Унесите датум рођења:</string>
     <string name="confirm_date">Потврди датум</string>
     <string name="enter_birth_time">Унесите време рођења:</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Combinaison Loto</string>
+    <string name="app_name">Combinaison Astro</string>
     <string name="enter_birth_date">Entrez la date de naissance :</string>
     <string name="confirm_date">Confirmer la date</string>
     <string name="enter_birth_time">Entrez l\'heure de naissance :</string>

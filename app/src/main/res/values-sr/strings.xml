@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Loto Kombinacije</string>
+    <string name="app_name">Astro Kombinacije</string>
     <string name="enter_birth_date">Unesite datum rođenja:</string>
     <string name="confirm_date">Potvrdi datum</string>
     <string name="enter_birth_time">Unesite vreme rođenja:</string>
@@ -30,6 +30,22 @@
     <string name="city_prefix">Grad: %1$s</string>
     <string name="city_not_set">Grad nije postavljen</string>
     <string name="find_combination">Pronađi kombinaciju</string>
-    <string name="or_prefix">ili</string>
+    <string name="or_prefix">Ili</string>
+    <string name="back_prefix">Nazad</string>
+    <string name="home">Početna</string>
+    <string name="lat_lon_format">Izabrana lokacija: Lat: %1$.5f, Lon: %2$.5f</string>
+    <string name="zodiac_type">Tip zodijaka</string>
+    <string name="ayanamsa">Ajanamsa</string>
+    <string name="ephemeris_type">Tip efemerida</string>
+    <string name="day_night_mode">Dnevni/noćni režim</string>
+    <string name="orb_tolerance">Tolerancija orba (°)</string>
+    <string name="time_zone">Vremenska zona</string>
+    <string name="manual_time_zone">Ručna vremenska zona (opciono)</string>
+    <string name="extra_bodies">Dodatna tela (razdvojena zarezima)</string>
+    <string name="no_internet_title">Nema internet veze</string>
+    <string name="no_internet_message">Ova aplikacija zahteva aktivnu internet konekciju. Uključite internet na telefonu i kliknite na „Pokušaj ponovo“.</string>
+    <string name="retry">Pokušaj ponovo</string>
+    <string name="press_back_again_to_exit">Kliknite još jednom na nazad za izlaz</string>
+
 
 </resources>
