@@ -4,10 +4,18 @@ package com.zoqo.lottocombinationfinder.ui
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
+import android.widget.NumberPicker
+import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SignalWifiOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -15,22 +23,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.viewinterop.AndroidView
-import com.zoqo.lottocombinationfinder.R
-import android.widget.NumberPicker
-import android.widget.TextView
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.toArgb
-
-import androidx.annotation.ColorInt
-import android.os.Build
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.zoqo.lottocombinationfinder.R
 
 @Composable
 fun NoInternetDialog(onRetry: () -> Unit) {
@@ -69,15 +68,15 @@ fun CustomTimePickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(text = "Select Time") },
+        title = {Text(stringResource(R.string.select_time)) },
         text = {
-            // dva točka (hour • minute) u jednom redu
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // ────── SAT ──────
+
                 val colorInt = MaterialTheme.colorScheme.onSurface.toArgb()
 
 
@@ -90,7 +89,7 @@ fun CustomTimePickerDialog(
                             setFormatter { "%02d".format(it) }
                             setOnValueChangedListener { _, _, newVal -> hour = newVal }
 
-                            applyTextColor(colorInt)   // ← prosleđuješ Int, nikad Color
+                            applyTextColor(colorInt)
                         }
                     },
                     update = {
@@ -103,9 +102,6 @@ fun CustomTimePickerDialog(
 
                 Text(text = ":", style = MaterialTheme.typography.headlineMedium)
 
-                // ───── MINUT ─────
-
-
                 AndroidView(
                     factory = { context ->
                         NumberPicker(context).apply {
@@ -115,7 +111,7 @@ fun CustomTimePickerDialog(
                             setFormatter { "%02d".format(it) }
                             setOnValueChangedListener { _, _, newVal -> minute = newVal }
 
-                            applyTextColor(colorInt)   // ← prosleđuješ Int, nikad Color
+                            applyTextColor(colorInt)
                         }
                     },
                     update = {
@@ -132,33 +128,81 @@ fun CustomTimePickerDialog(
             TextButton(onClick = {
                 onTimeSelected(hour, minute)
                 onDismissRequest()
-            }) { Text("OK") }
+            }) { Text(stringResource(R.string.ok)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) { Text("Cancel") }
+            TextButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
 
 
-//@ColorInt
+
 private fun NumberPicker.applyTextColor(@ColorInt color: Int) {
-    // 1) Text boja svih child-TextView-ova (radi svuda)
     for (i in 0 until childCount) {
         (getChildAt(i) as? TextView)?.setTextColor(color)
     }
 
-    // 2) API ≥ 29: postoji setTextColor na samom pickeru
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         try {
             val method = NumberPicker::class.java.getMethod("setTextColor", Int::class.javaPrimitiveType)
             method.invoke(this, color)
         } catch (_: Exception) { /* best-effort */ }
     }
-    // 3) Ne diramo mSelectorWheelPaint refleksijom → nema non-SDK upozorenja
+
+}
+
+@Composable
+
+fun PlanetInfoDialog(
+    planetSymbol: String,
+    onDismiss: () -> Unit
+) {
+    val name = getPlanetName(planetSymbol)
+    val description = getPlanetDescription(planetSymbol)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = name) },
+        text = { Text(text = description) },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.ok))
+            }
+        }
+    )
 }
 
 
+@Composable
+fun getPlanetName(symbol: String): String = when (symbol) {
+    "☉" -> stringResource(R.string.planet_sun)
+    "☽" -> stringResource(R.string.planet_moon)
+    "☿" -> stringResource(R.string.planet_mercury)
+    "♀" -> stringResource(R.string.planet_venus)
+    "♂" -> stringResource(R.string.planet_mars)
+    "♃" -> stringResource(R.string.planet_jupiter)
+    "♄" -> stringResource(R.string.planet_saturn)
+    "♅" -> stringResource(R.string.planet_uranus)
+    "♆" -> stringResource(R.string.planet_neptune)
+    "♇" -> stringResource(R.string.planet_pluto)
+    else -> stringResource(R.string.planet_unknown)
+}
+
+@Composable
+fun getPlanetDescription(symbol: String): String = when (symbol) {
+    "☉" -> stringResource(R.string.desc_sun)
+    "☽" -> stringResource(R.string.desc_moon)
+    "☿" -> stringResource(R.string.desc_mercury)
+    "♀" -> stringResource(R.string.desc_venus)
+    "♂" -> stringResource(R.string.desc_mars)
+    "♃" -> stringResource(R.string.desc_jupiter)
+    "♄" -> stringResource(R.string.desc_saturn)
+    "♅" -> stringResource(R.string.desc_uranus)
+    "♆" -> stringResource(R.string.desc_neptune)
+    "♇" -> stringResource(R.string.desc_pluto)
+    else -> stringResource(R.string.desc_unknown)
+}
 
 fun Context.hasInternetConnection(): Boolean {
     val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

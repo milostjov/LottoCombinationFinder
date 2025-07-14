@@ -1,0 +1,219 @@
+package com.zoqo.lottocombinationfinder.ui
+
+import androidx.compose.animation.animateColor
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.center
+import kotlin.math.*
+import androidx.compose.animation.core.*
+
+
+private val zodiac = listOf("♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓")
+
+@Composable
+fun NatalChartView(
+    data: AstroInputData,
+    planets: List<Pair<String, Double>>
+) {
+    var scale       by remember { mutableStateOf(1f) }
+    var translation by remember { mutableStateOf(Offset.Zero) }
+    var selected    by remember { mutableStateOf<String?>(null) }
+    val planetCenters = remember { mutableStateListOf<Pair<String, Offset>>() }
+    var debugTap by remember { mutableStateOf<Offset?>(null) }
+
+    val pulseAnim = rememberInfiniteTransition()
+    val pulseRadius by pulseAnim.animateFloat(
+        initialValue = 0f,
+        targetValue = 20f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val colorAnim = rememberInfiniteTransition()
+    val pulseColor by colorAnim.animateColor(
+        initialValue = Color(0xFFFFEB3B),
+        targetValue = Color(0xFFFF0000),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+
+
+    val gestureMod = Modifier
+        .pointerInput(Unit) {
+            detectTransformGestures { _, pan, zoom, _ ->
+                scale = (scale * zoom).coerceIn(0.5f, 4f)
+                translation += pan
+            }
+        }
+
+
+
+        .pointerInput(scale, translation) {
+            detectTapGestures { tap ->
+                val canvasSize = this.size
+                val pivot = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
+
+                // Obrnuto od withTransform: prvo pomeri, pa skaliraj oko centra
+                val raw = ((tap - pivot) / scale + pivot) - translation
+
+
+                debugTap = raw
+
+                val threshold = 50f / scale
+                val hit = planetCenters.firstOrNull { (_, pos) ->
+                    (pos - raw).getDistance() <= threshold
+                }
+                selected = hit?.first
+            }
+        }
+
+
+
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .then(gestureMod)
+    ) {
+        planetCenters.clear()
+
+
+
+
+        // Apply scale and translation transform for drawing
+        withTransform({
+            scale(scale, scale, pivot = center)
+            translate(translation.x, translation.y)
+        }) {
+            val R      = size.minDimension / 2.5f
+            val C      = center
+            val labelR = R + 30f
+
+            drawCircle(Color.DarkGray, R, C)
+
+            repeat(12) { i ->
+                val a = Math.toRadians(i * 30.0 - 90)
+                val vx = cos(a).toFloat()
+                val vy = sin(a).toFloat()
+                drawLine(Color.LightGray, C, C + Offset(vx, vy) * R, 2f)
+
+                // Zodiac sign
+                drawIntoCanvas { cv ->
+                    cv.nativeCanvas.drawText(
+                        zodiac[i],
+                        C.x + labelR * vx,
+                        C.y + labelR * vy + 10,
+                        android.graphics.Paint().apply {
+                            color = android.graphics.Color.WHITE
+                            textAlign = android.graphics.Paint.Align.CENTER
+                            textSize = 32f
+                            isAntiAlias = true
+                        }
+                    )
+                }
+
+                // House number
+                val mid = Math.toRadians(i * 30.0 + 15.0 - 90)
+                drawIntoCanvas { cv ->
+                    cv.nativeCanvas.drawText(
+                        "${i + 1}",
+                        C.x + (R - 42) * cos(mid).toFloat(),
+                        C.y + (R - 42) * sin(mid).toFloat() + 8,
+                        android.graphics.Paint().apply {
+                            color = android.graphics.Color.LTGRAY
+                            textAlign = android.graphics.Paint.Align.CENTER
+                            textSize = 22f
+                            isAntiAlias = true
+                        }
+                    )
+                }
+            }
+
+            // Planets
+            planets.forEach { (sym, lon) ->
+                val ang = Math.toRadians(lon - 90)
+                val pos = Offset(
+                    C.x + (R - 78) * cos(ang).toFloat(),
+                    C.y + (R - 78) * sin(ang).toFloat()
+                )
+                planetCenters += sym to pos
+                drawIntoCanvas { cv ->
+                    cv.nativeCanvas.drawText(
+                        sym, pos.x, pos.y + 10,
+                        android.graphics.Paint().apply {
+                            color = android.graphics.Color.YELLOW
+                            textAlign = android.graphics.Paint.Align.CENTER
+                            textSize = 28f
+                            isAntiAlias = true
+                        }
+                    )
+                }
+            }
+            selected?.let { sym ->
+                val pos = planetCenters.firstOrNull { it.first == sym }?.second
+                if (pos != null) {
+                    drawCircle(
+                        color = pulseColor.copy(alpha = 0.4f),
+                        radius = 28f + pulseRadius,
+                        center = pos,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                    )
+                }
+            }
+
+
+            // Pulsirajući efekat oko selektovane planete
+            selected?.let { sym ->
+                val pos = planetCenters.firstOrNull { it.first == sym }?.second
+                if (pos != null) {
+                    drawCircle(
+                        color = Color.Yellow.copy(alpha = 0.3f),
+                        radius = 28f + pulseRadius,
+                        center = pos,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                    )
+                }
+            }
+
+
+            // Aspects
+            val asp = listOf(0.0, 60.0, 90.0, 120.0, 180.0)
+            val orb = data.orb ?: 6.0
+            for (i in planets.indices) for (j in i + 1 until planets.size) {
+                val (_, l1) = planets[i]; val (_, l2) = planets[j]
+                val d = min(abs((l1 - l2 + 360) % 360), 360 - abs((l1 - l2 + 360) % 360))
+                if (asp.any { abs(d - it) <= orb }) {
+                    drawLine(
+                        Color.Gray.copy(alpha = 0.35f),
+                        planetCenters[i].second,
+                        planetCenters[j].second,
+                        strokeWidth = 1.4f
+                    )
+                }
+            }
+
+        }
+//        debugTap?.let {
+//            drawCircle(Color.Red, radius = 10f, center = it)
+//        }
+    }
+
+    selected?.let { sym ->
+        PlanetInfoDialog(sym) { selected = null }
+    }
+}

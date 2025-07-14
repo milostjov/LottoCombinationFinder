@@ -54,9 +54,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.zoqo.lottocombinationfinder.ui.BannerAdView
+import com.zoqo.lottocombinationfinder.ui.NatalChartScreen
 import com.zoqo.lottocombinationfinder.ui.NoInternetDialog
 import com.zoqo.lottocombinationfinder.ui.hasInternetConnection
 
@@ -220,6 +223,7 @@ class MainActivity : ComponentActivity() {
                                         "lotto" -> stringResource(R.string.app_name)
                                         "astro_input" -> stringResource(R.string.astro_setings)
                                         "map_picker/{lat}/{lon}" -> stringResource(R.string.select_precisely_on_map)
+                                        "natal_chart" -> stringResource(R.string.natal_chart)
                                         else -> ""
                                     }
                                 )
@@ -240,35 +244,49 @@ class MainActivity : ComponentActivity() {
 
 
                     bottomBar = {
-                        BottomAppBar {
-                            IconButton(
-                                onClick = {
-                                    navController.navigate("lotto") {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    }
-                                },
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Home,
-                                    contentDescription = stringResource(R.string.home)
-                                )
-                            }
+                        Column {
+                            // Prikaz banera iznad donjeg menija
+                            BannerAdView()
 
-                            IconButton(
-                                onClick = { navController.navigate("astro_input") },
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Settings,
-                                    contentDescription = stringResource(R.string.astro_setings)
-                                )
+                            BottomAppBar {
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate("lotto") {
+                                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = stringResource(R.string.home)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = { navController.navigate("natal_chart") },
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = stringResource(R.string.natal_chart)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = { navController.navigate("astro_input") },
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = stringResource(R.string.astro_setings)
+                                    )
+                                }
                             }
                         }
                     }
+
 
                 )
                 { innerPadding ->
@@ -371,6 +389,10 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        composable("natal_chart") {
+                            NatalChartScreen()
+                        }
+
                     }
                 }
             }

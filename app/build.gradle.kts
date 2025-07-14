@@ -3,7 +3,7 @@ import org.gradle.internal.impldep.bsh.commands.dir
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0" // ⬅️ dodaj ovaj plugin
+    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
 }
 
 android {
@@ -14,8 +14,8 @@ android {
         applicationId = "com.zoqo.lottocombinationfinder"
         minSdk = 26
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.6"
+        versionCode = 7
+        versionName = "1.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -48,7 +48,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.6.7" // ✅ koristi najnoviju stabilnu verziju
+        kotlinCompilerExtensionVersion = "1.6.7"
     }
 
     packaging {

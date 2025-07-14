@@ -606,7 +606,6 @@ fun AstroUserInputScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        BannerAdView()
         }
     }
 

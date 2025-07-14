@@ -92,9 +92,9 @@ fun LottoApp(
     }
 
     Scaffold(
-        bottomBar = {
-            BannerAdView() // fiksiran pri dnu
-        }
+//        bottomBar = {
+//            BannerAdView() // fiksiran pri dnu
+//        }
     ) { innerPadding ->
         Column(
             modifier = Modifier

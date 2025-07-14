@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Astro Kombinacije</string>
-    <string name="enter_birth_date">Unesite datum rođenja:</string>
-    <string name="confirm_date">Potvrdi datum</string>
-    <string name="enter_birth_time">Unesite vreme rođenja:</string>
-    <string name="hour">Sat</string>
-    <string name="minute">Minut</string>
-    <string name="enter_location">Unesite geografsku lokaciju:</string>
-    <string name="latitude">Lat</string>
-    <string name="longitude">Lon</string>
     <string name="select_house_system">Izaberite sistem kuća:</string>
     <string name="confirm">Potvrdi</string>
     <string name="birth_date">Datum rođenja</string>
     <string name="birth_time">Vreme rođenja</string>
-    <string name="enter_birth_city">Grad rođenja</string>
     <string name="select_precisely_on_map">Nađi na mapi</string>
     <string name="ok">U redu</string>
     <string name="cancel">Otkaži</string>
@@ -25,10 +16,8 @@
     <string name="total_numbers">Ukupan broj</string>
     <string name="numbers_to_choose">Broj za izbor</string>
     <string name="enter_rank_hint">Unesite rang (npr. vaš datum rođenja)</string>
-    <string name="or_generate_rank_num">Ili generiši rang koristeći Swiss Ephemeris</string>
+    <string name="or_generate_rank_num">Generiši rang koristeći Swiss Ephemeris</string>
     <string name="enter_city">Unesite grad</string>
-    <string name="city_prefix">Grad: %1$s</string>
-    <string name="city_not_set">Grad nije postavljen</string>
     <string name="find_combination">Pronađi kombinaciju</string>
     <string name="or_prefix">Ili</string>
     <string name="back_prefix">Nazad</string>
@@ -40,12 +29,40 @@
     <string name="day_night_mode">Dnevni/noćni režim</string>
     <string name="orb_tolerance">Tolerancija orba (°)</string>
     <string name="time_zone">Vremenska zona</string>
-    <string name="manual_time_zone">Ručna vremenska zona (opciono)</string>
     <string name="extra_bodies">Dodatna tela (razdvojena zarezima)</string>
     <string name="no_internet_title">Nema internet veze</string>
     <string name="no_internet_message">Ova aplikacija zahteva aktivnu internet konekciju. Uključite internet na telefonu i kliknite na „Pokušaj ponovo“.</string>
     <string name="retry">Pokušaj ponovo</string>
     <string name="press_back_again_to_exit">Kliknite još jednom na nazad za izlaz</string>
+
+        <string name="select_time">Izaberi vreme</string>
+        <string name="natal_chart">Natalna karta</string>
+
+        <string name="planet_sun">Sunce</string>
+        <string name="planet_moon">Mesec</string>
+        <string name="planet_mercury">Merkur</string>
+        <string name="planet_venus">Venera</string>
+        <string name="planet_mars">Mars</string>
+        <string name="planet_jupiter">Jupiter</string>
+        <string name="planet_saturn">Saturn</string>
+        <string name="planet_uranus">Uran</string>
+        <string name="planet_neptune">Neptun</string>
+        <string name="planet_pluto">Pluton</string>
+        <string name="planet_unknown">Nepoznata planeta</string>
+
+        <string name="desc_sun">Sunce predstavlja tvoju suštinu, identitet i vitalnost.</string>
+        <string name="desc_moon">Mesec simbolizuje emocije, instinkt i unutrašnji svet.</string>
+        <string name="desc_mercury">Merkur upravlja komunikacijom, razmišljanjem i logikom.</string>
+        <string name="desc_venus">Venera simbolizuje ljubav, lepotu i odnose.</string>
+        <string name="desc_mars">Mars donosi energiju, akciju i strast.</string>
+        <string name="desc_jupiter">Jupiter donosi ekspanziju, sreću i filozofiju.</string>
+        <string name="desc_saturn">Saturn predstavlja disciplinu, karmu i odgovornost.</string>
+        <string name="desc_uranus">Uran je planeta promena, slobode i inovacija.</string>
+        <string name="desc_neptune">Neptun se odnosi na intuiciju, snove i duhovnost.</string>
+        <string name="desc_pluto">Pluton simbolizuje transformaciju, moć i regeneraciju.</string>
+        <string name="desc_unknown">Nema dostupnih podataka.</string>
+
+
 
 
 </resources>
