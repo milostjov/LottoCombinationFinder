@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.zoqo.lottocombinationfinder.components.LottoBall
 import com.zoqo.lottocombinationfinder.components.LottoResult
+import com.zoqo.lottocombinationfinder.components.LottoResult2
 import com.zoqo.lottocombinationfinder.data.SavedCombinationsManager
 import kotlinx.coroutines.launch
 
@@ -60,7 +61,7 @@ fun SavedListScreen() {
                         ) {
 
                             // ✅ Prikaz kombinacije pomoću LottoResult
-                            LottoResult("Combination: ${item.combination}", modifier = Modifier.weight(1f))
+                            LottoResult("Combination: ${item.combination}", restartAnimationKey = 0L, modifier = Modifier.weight(1f))
                             Spacer(modifier = Modifier.width(8.dp)) // ➜ dodat razmak
                             // Ikonica za brisanje
                             IconButton(onClick = {

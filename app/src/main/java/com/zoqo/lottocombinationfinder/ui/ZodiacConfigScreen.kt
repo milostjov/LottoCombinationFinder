@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -47,16 +48,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import com.zoqo.lottocombinationfinder.R
+import com.zoqo.lottocombinationfinder.components.AnimatedRankDisplay
 import com.zoqo.lottocombinationfinder.components.AstroRankCalculator
 import com.zoqo.lottocombinationfinder.components.calculateTotalCombinations
 import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -66,6 +72,7 @@ import java.text.DateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,6 +107,8 @@ fun AstroUserInputScreen(
 
     var showRankDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    var displayedRank by rememberSaveable { mutableStateOf("") }
+
 
 
     // Load preferences
@@ -234,42 +243,11 @@ fun AstroUserInputScreen(
             numbersToChoose = chooseStr.toIntOrNull() ?: 7
         }
 
-        val maxRank = calculateTotalCombinations(totalNumbers, numbersToChoose)
-
-        val isRankInvalid = rankInput.isNotEmpty() &&
-                (rankInput.toBigIntegerOrNull() == null ||
-                        rankInput.toBigInteger() <= BigInteger.ZERO ||
-                        rankInput.toBigInteger() > maxRank)
 
 
-        OutlinedTextField(
-            value = rankInput,
-            onValueChange = { newValue ->
-                rankInput = newValue
-                savePreferences(context, scope, birthDate, birthHour, birthMinute, selectedPlanet, newValue)
-            },
-            label = { Text(stringResource(R.string.enter_rank_hint)) },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            isError = isRankInvalid,   // <-- Ovde dodajemo
-            supportingText = {
-                if (isRankInvalid) {
-                    Text(
-                        text = context.getString(R.string.error_invalid_rank_range, maxRank.toLong()),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            trailingIcon = {
-                IconButton(onClick = { showRankDialog = true }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_info),
-                        contentDescription = "Info",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-        )
+        RankDisplayField(rankInput = rankInput)
+
+
 
 
 
@@ -277,47 +255,31 @@ fun AstroUserInputScreen(
             RankInfoDialog(onDismiss = { showRankDialog = false })
         }
 
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                coroutineScope.launch {
-                    val astroInput = AstroPreferencesManager
-                        .load(context)
-                        .first()
 
-                    val (totalStr, chooseStr) = AstroPreferencesManager
-                        .loadLottoSettings(context)
-                        .first()
 
-                    val totalNumbers = totalStr.toIntOrNull() ?: 39
-                    val numbersToChoose = chooseStr.toIntOrNull() ?: 7
+        // Pratimo promene relevantnih polja i automatski ažuriramo rank
+        LaunchedEffect(birthDate, birthHour, birthMinute, selectedPlanet) {
+            coroutineScope.launch {
+                val (totalStr, chooseStr) = AstroPreferencesManager.loadLottoSettings(context).first()
+                val totalNumbers = totalStr.toIntOrNull() ?: 39
+                val numbersToChoose = chooseStr.toIntOrNull() ?: 7
 
-                    val rank = AstroRankCalculator.calculateRankFromPlanetDistance(
-                        date = astroInput.date,
-                        hour = astroInput.hour,
-                        minute = astroInput.minute,
-                        totalNumbers = totalNumbers,
-                        numbersToChoose = numbersToChoose,
-                        planetName = astroInput.extraBodies?.firstOrNull() ?: "Mars"
-                    )
+                val rank = AstroRankCalculator.calculateRankFromPlanetDistance(
+                    date = birthDate,
+                    hour = birthHour,
+                    minute = birthMinute,
+                    totalNumbers = totalNumbers,
+                    numbersToChoose = numbersToChoose,
+                    planetName = selectedPlanet
+                )
 
-                    rankInput = rank.toString()
-
-                    // ✅ Sačuvaj automatski generisan rank
-                    savePreferences(
-                        context = context,
-                        scope = this,
-                        date = astroInput.date,
-                        hour = astroInput.hour,
-                        minute = astroInput.minute,
-                        planet = astroInput.extraBodies?.firstOrNull() ?: "Mars",
-                        rank = rank.toString()
-                    )
-                }
+                rankInput = rank.toString()
+                savePreferences(context, scope, birthDate, birthHour, birthMinute, selectedPlanet, rank.toString())
             }
-        ) {
-            Text(stringResource(R.string.generate_rank_num))
         }
+
+
+
 
 
         Button(
@@ -368,6 +330,102 @@ fun AstroUserInputScreen(
 
     }
 }
+
+@Composable
+fun RankDisplayField(rankInput: String) {
+    val context = LocalContext.current
+    var totalNumbers by remember { mutableStateOf(49) }
+    var numbersToChoose by remember { mutableStateOf(6) }
+    var showRankDialog by remember { mutableStateOf(false) }
+
+    // ✅ Učitavanje vrednosti iz memorije
+    LaunchedEffect(Unit) {
+        val (savedTotal, savedChoose) = loadSavedValues(context)
+        totalNumbers = savedTotal
+        numbersToChoose = savedChoose
+    }
+
+    val animatedRank = AnimatedRankDisplay(
+        targetNumber = rankInput.toIntOrNull() ?: 0
+    )
+
+    // ✅ Pastelne boje
+    val pastelGreen = Color(0xFFA8E6CF)
+    val pastelRed = Color(0xFFFF8B94)
+
+    // ✅ Izračunavanje procenta za gradijent boje
+    val rankValue = try {
+        BigInteger(rankInput)
+    } catch (e: NumberFormatException) {
+        BigInteger.ZERO
+    }
+
+    val maxRank = BigInteger.valueOf(
+        calculateTotalCombinations(totalNumbers, numbersToChoose).toLong()
+    )
+
+    val percentage = if (maxRank > BigInteger.ZERO) {
+        (rankValue.toFloat() / maxRank.toFloat()).coerceIn(0f, 1f)
+    } else 0f
+
+// Ako je manji rank bolji (bliže 1 = najbolja kombinacija)
+    val adjustedPercentage = 1f - percentage
+
+    val rankColor = lerp(pastelRed, pastelGreen, adjustedPercentage)
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // ✅ Naslov sa info ikonicom
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.enter_rank_hint),
+                style = MaterialTheme.typography.titleMedium
+            )
+            IconButton(onClick = { showRankDialog = true }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_info),
+                    contentDescription = "Info",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(20.dp)
+                )
+            }
+        }
+
+        // ✅ Prikaz animiranog ranga sa PASTEL gradijent bojom
+        Text(
+            text = animatedRank,
+            style = MaterialTheme.typography.displayLarge.copy(color = rankColor),
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
+
+    // ✅ Alert dialog sa detaljnim opisom
+    if (showRankDialog) {
+        AlertDialog(
+            onDismissRequest = { showRankDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showRankDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text(stringResource(R.string.enter_rank_hint)) },
+            text = { Text(stringResource(R.string.rank_info_text)) }
+        )
+    }
+}
+
+
+
 
 
 // Data holders
@@ -508,4 +566,10 @@ fun isInputValid(
 fun calculateMaxCombinations(n: Int, k: Int): Long {
     fun factorial(x: Int): Long = if (x <= 1) 1 else x * factorial(x - 1)
     return factorial(n) / (factorial(k) * factorial(n - k))
+}
+fun loadSavedValues(context: Context): Pair<Int, Int> {
+    val sharedPreferences = context.getSharedPreferences("lotto_prefs", Context.MODE_PRIVATE)
+    val totalNumbers = sharedPreferences.getInt("totalNumbers", 49) // default 49
+    val numbersToChoose = sharedPreferences.getInt("numbersToChoose", 6) // default 6
+    return totalNumbers to numbersToChoose
 }

@@ -33,6 +33,7 @@ import com.zoqo.lottocombinationfinder.components.AstroRankCalculator
 import com.zoqo.lottocombinationfinder.components.GenerateButton
 import com.zoqo.lottocombinationfinder.components.LottoInputFields
 import com.zoqo.lottocombinationfinder.components.LottoResult
+import com.zoqo.lottocombinationfinder.components.LottoResult2
 import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
 import com.zoqo.lottocombinationfinder.components.calculateTotalCombinations
 import com.zoqo.lottocombinationfinder.components.findCombination
@@ -49,7 +50,7 @@ import java.math.BigInteger
 @Composable
 fun LottoApp(
     showRewardedAd: ((onReward: () -> Unit) -> Unit),
-    onAstroSettingsClick: () -> Unit
+    restartAnimationKey: Long
 ) {
     val context = LocalContext.current
     var resultText by rememberSaveable { mutableStateOf("") }
@@ -236,7 +237,7 @@ fun LottoApp(
 
 
 
-            LottoResult(resultText)
+            LottoResult2(resultText, restartAnimationKey = restartAnimationKey)
         }
     }
 

@@ -186,6 +186,7 @@ class MainActivity : ComponentActivity() {
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = currentBackStackEntry?.destination?.route
                 val context = LocalContext.current
+                val restartAnimationTrigger = remember { mutableStateOf(0L) }
                 val astroData by AstroPreferencesManager.load(context).collectAsState(
                     initial = AstroInputData(
                         date = LocalDate.now(),
@@ -330,16 +331,16 @@ class MainActivity : ComponentActivity() {
                                         }
                                         ad.show(this@MainActivity, OnUserEarnedRewardListener {
                                             Log.d(TAG, "User earned reward")
+                                            restartAnimationTrigger.value = System.currentTimeMillis() // 🔥 reset animacije
                                             onReward()
                                         })
                                     } else {
                                         Log.d(TAG, "Rewarded ad not ready")
                                         onReward()
                                     }
-                                },
-                                onAstroSettingsClick = {
-                                    navController.navigate("astro_input")
                                 }
+,
+                                restartAnimationKey = restartAnimationTrigger.value   // 👈 DODATO
                             )
                         }
                         composable("astro_input") {

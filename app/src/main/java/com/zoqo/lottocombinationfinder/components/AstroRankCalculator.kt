@@ -85,7 +85,7 @@ object AstroRankCalculator {
             .divide(range, 16, RoundingMode.HALF_UP)
             .coerceIn(BigDecimal.ZERO, BigDecimal.ONE)
 
-        val normalizedClamped = if (numbersToChoose > 2) {
+        val normalizedClamped = if (numbersToChoose > 1) {
             normalized.coerceIn(BigDecimal("0.05"), BigDecimal("0.95"))
         } else {
             normalized // bez ograničenja ako se bira samo 2 broja
