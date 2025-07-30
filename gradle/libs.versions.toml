@@ -3,6 +3,8 @@ accompanistFlowlayout = "0.30.1"
 agp = "8.6.1"
 androidSdk = "9.5.0"
 datastorePreferences = "1.1.6"
+firebaseAuth = "23.2.1"
+firebaseAuthVersion = "22.3.0"
 kotlin = "2.1.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -15,6 +17,8 @@ mapsCompose = "2.11.4"
 navigationCompose = "2.9.0"
 playServicesAds = "24.2.0"
 composeMaterialCore = "1.4.1"
+playServicesAuth = "21.3.0"
+playServicesAuthVersion = "21.0.0"
 playServicesLocation = "21.3.0"
 playServicesMaps = "19.2.0"
 navigationCommonAndroid = "2.9.0"
@@ -23,6 +27,8 @@ material3Jvmstubs = "1.4.0-alpha17"
 
 [libraries]
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
+firebase-auth-v2230 = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuthVersion" }
 maplibre = { module = "org.maplibre.gl:android-sdk", version = "11.8.5" }
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
 #android-sdk = { module = "org.maplibre.gl:android-sdk", version.ref = "androidSdk" }
@@ -45,6 +51,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 androidx-compose-material-core = { group = "androidx.wear.compose", name = "compose-material-core", version.ref = "composeMaterialCore" }
 androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+play-services-auth-v2100 = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-material3-jvmstubs = { group = "androidx.compose.material3", name = "material3-jvmstubs", version.ref = "material3Jvmstubs" }
@@ -52,4 +60,5 @@ androidx-material3-jvmstubs = { group = "androidx.compose.material3", name = "ma
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.3" }
 

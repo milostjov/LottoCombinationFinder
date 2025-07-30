@@ -2,20 +2,20 @@
     <string name="app_name">Astro Combination Finder</string>
     <string name="select_house_system">Select House System</string>
     <string name="confirm">Confirm</string>
-    <string name="birth_date">Ephemeris Date</string>
-    <string name="birth_time">Ephemeris Time</string>
+    <string name="birth_date">Draw Date</string>
+    <string name="birth_time">Draw Time</string>
     <string name="select_precisely_on_map">Select on Map</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="astro_setings">Swiss Ephemeris Settings</string>
+    <string name="astro_setings">Astro Finder Settings</string>
     <string name="error_invalid_total_choose">Invalid input for total numbers or numbers to choose.</string>
     <string name="error_invalid_rank">Invalid rank. Enter a number between 1 and %1$d</string>
     <string name="result_combination">Combination: %1$s</string>
     <string name="save_location">Save Location</string>
     <string name="total_numbers">Total Numbers</string>
     <string name="numbers_to_choose">Numbers to Choose</string>
-    <string name="enter_rank_hint">Enter Rank (e.g. Your Date of Birth)</string>
-    <string name="or_generate_rank_num">Generate a Rank Number Using Swiss Ephemeris</string>
+    <string name="enter_rank_hint">Combination Rank</string>
+    <string name="generate_rank_num">Generate a Combination Rank</string>
     <string name="enter_city">Enter Location (City) for Ephemeris</string>
     <string name="find_combination">Find Combination</string>
     <string name="or_prefix">Or</string>
@@ -28,13 +28,14 @@
     <string name="day_night_mode">Day/Night Mode</string>
     <string name="orb_tolerance">Orb Tolerance (°)</string>
     <string name="time_zone">Time Zone</string>
-    <string name="extra_bodies">Extra Bodies (comma-separated)</string>
+    <string name="select_lucky_planet">Select Your Lucky Planet</string>
     <string name="no_internet_title">No Internet Connection</string>
     <string name="no_internet_message">This app requires an active internet connection. Please enable internet on your phone and tap "Retry".</string>
     <string name="retry">Retry</string>
     <string name="press_back_again_to_exit">Press back again to exit</string>
     <string name="select_time">Select Time</string>
-    <string name="natal_chart">Natal Chart</string>
+    <string name="natal_chart">Astro Chart</string>
+    <string name="saved_combinations">Saved Combinations</string>
     <string name="planet_sun">Sun</string>
     <string name="planet_moon">Moon</string>
     <string name="planet_mercury">Mercury</string>
@@ -57,6 +58,17 @@
     <string name="desc_neptune">Neptune relates to intuition, dreams, and spirituality.</string>
     <string name="desc_pluto">Pluto symbolizes transformation, power, and regeneration.</string>
     <string name="desc_unknown">No data available.</string>
+    <string name="rank_info_title">What is Combination Rank?</string>
+    <string name="rank_info_text">
+In every number-based lottery game, there\'s a certain order in which winning numbers are drawn. The "rank" in this app reflects your personal alignment with that order. It is calculated based on the distance of your selected planet from Earth at the exact date and time of the draw. This cosmic relationship can subtly influence which number combinations are most in sync with you.
+</string>
+    <string name="error_invalid_rank_range">Enter a number between 1 and %1$d</string>
+    <string name="watch_ad_title">Watch Ad</string>
+    <string name="watch_ad_description">Watch a short video to get your number combination.</string>
+    <string name="watch_ad_confirm">Watch</string>
+    <string name="watch_ad_cancel">Cancel</string>
+    <string name="retrograde_planet">Retrograde Planet</string>
+
 
 
 </resources>

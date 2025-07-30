@@ -23,10 +23,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.zoqo.lottocombinationfinder" />
+                  <option name="mobileSdkAppId" value="1:943112717783:android:38576858b3add7d4793792" />
+                  <option name="projectId" value="astrocombinationfinder" />
+                  <option name="projectNumber" value="943112717783" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

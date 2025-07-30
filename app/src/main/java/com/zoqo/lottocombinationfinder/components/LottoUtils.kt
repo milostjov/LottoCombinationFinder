@@ -1,4 +1,4 @@
-package com.zoqo.lottocombinationfinder.utils
+package com.zoqo.lottocombinationfinder.components
 
 import java.math.BigInteger
 

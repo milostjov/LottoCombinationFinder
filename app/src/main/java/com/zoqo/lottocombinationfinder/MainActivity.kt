@@ -7,6 +7,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,59 +18,71 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.ads.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.zoqo.lottocombinationfinder.ads.AdHelper
+import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
+import com.zoqo.lottocombinationfinder.ui.AstroInputData
 import com.zoqo.lottocombinationfinder.ui.AstroUserInputScreen
+import com.zoqo.lottocombinationfinder.ui.BannerAdView
 import com.zoqo.lottocombinationfinder.ui.LottoApp
+import com.zoqo.lottocombinationfinder.ui.NatalChartScreen
+import com.zoqo.lottocombinationfinder.ui.NoInternetDialog
+import com.zoqo.lottocombinationfinder.ui.SavedListScreen
+import com.zoqo.lottocombinationfinder.ui.hasInternetConnection
 import com.zoqo.lottocombinationfinder.ui.theme.LottoCombinationFinderTheme
-import org.maplibre.android.MapLibre
-import org.maplibre.android.WellKnownTileServer
-
-import androidx.navigation.NavType
-import androidx.navigation.compose.*
-import androidx.navigation.navArgument
-import com.zoqo.lottocombinationfinder.components.MapLibrePickerScreen
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.Alignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import com.zoqo.lottocombinationfinder.ui.BannerAdView
-import com.zoqo.lottocombinationfinder.ui.NatalChartScreen
-import com.zoqo.lottocombinationfinder.ui.NoInternetDialog
-import com.zoqo.lottocombinationfinder.ui.hasInternetConnection
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
     private val TAG = "MainActivity"
     private var hasShownStartupAd = false
     private var lastBackPressTime: Long = 0
-
+    object UiConstants {
+        val ICON_SIZE: Dp = 36.dp
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -83,26 +97,18 @@ class MainActivity : ComponentActivity() {
 
         hasShownStartupAd = savedInstanceState?.getBoolean("shown_ad") ?: false
 
-        initMapLibre()
         initMobileAds()
         preloadOtherAds()
 
-        if (!hasShownStartupAd) {
-            // prikaz privremenog splash ekrana
+        if (!hasShownStartupAd && AdHelper.canShowStartupAd(this)) {
             setSplashUI()
             loadAdWithTimeout()
         } else {
             showMainUI()
         }
+
     }
 
-    private fun initMapLibre() {
-        MapLibre.getInstance(
-            applicationContext,
-            null, // API ključ ako koristiš MapLibre tiles
-            WellKnownTileServer.MapLibre
-        )
-    }
 
     private fun initMobileAds() {
         MobileAds.initialize(this) {}
@@ -111,15 +117,12 @@ class MainActivity : ComponentActivity() {
     private fun setSplashUI() {
         setContent {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Slika kao pozadina
                 Image(
                     painter = painterResource(R.drawable.splash_gold),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-
-                // Sadržaj preko slike
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -134,9 +137,8 @@ class MainActivity : ComponentActivity() {
 
     private fun loadAdWithTimeout() {
         val scope = CoroutineScope(Dispatchers.Main)
-
         scope.launch {
-            val adShown = withTimeoutOrNull(5000) { // 5 sekundi timeout
+            withTimeoutOrNull(5000) {
                 suspendCancellableCoroutine { continuation ->
                     InterstitialAd.load(
                         this@MainActivity,
@@ -145,27 +147,27 @@ class MainActivity : ComponentActivity() {
                         object : InterstitialAdLoadCallback() {
                             override fun onAdLoaded(ad: InterstitialAd) {
                                 hasShownStartupAd = true
+                                AdHelper.incrementStartupAdCount(this@MainActivity)
+
                                 ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                                     override fun onAdDismissedFullScreenContent() {
-                                        continuation.resume(Unit) {} // reklama gotova
+                                        continuation.resume(Unit) {}
                                     }
-
                                     override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                                         continuation.resume(Unit) {}
                                     }
                                 }
+
                                 ad.show(this@MainActivity)
                             }
 
                             override fun onAdFailedToLoad(adError: LoadAdError) {
-                                continuation.resume(Unit) {} // nije uspela
+                                continuation.resume(Unit) {}
                             }
                         }
                     )
                 }
             }
-
-            // bilo da je reklama prikazana ili ne — nastavi na glavni UI
             showMainUI()
         }
     }
@@ -175,14 +177,36 @@ class MainActivity : ComponentActivity() {
         AdHelper.loadExitInterstitialAd(this)
     }
 
+    // Removed login and credits dialog from the UI for simplified app
     @OptIn(ExperimentalMaterial3Api::class)
     private fun showMainUI() {
         setContent {
             LottoCombinationFinderTheme {
                 val navController = rememberNavController()
-
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = currentBackStackEntry?.destination?.route
+                val context = LocalContext.current
+                val astroData by AstroPreferencesManager.load(context).collectAsState(
+                    initial = AstroInputData(
+                        date = LocalDate.now(),
+                        hour = 12,
+                        minute = 0,
+                        extraBodies = emptyList()
+                    )
+                )
+                val formattedTitle = remember(astroData) {
+                    val dateTime = astroData.date.atTime(astroData.hour, astroData.minute)
+
+                    val dateFormatter = DateTimeFormatter
+                        .ofPattern("MMM d, yyyy", Locale.ENGLISH)
+
+
+
+                    "${context.getString(R.string.natal_chart)} for ${dateFormatter.format(dateTime)} "
+                }
+
+
+
 
                 BackHandler {
                     if (currentDestination == "lotto") {
@@ -194,7 +218,6 @@ class MainActivity : ComponentActivity() {
                                     override fun onAdDismissedFullScreenContent() {
                                         this@MainActivity.finish()
                                     }
-
                                     override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                                         this@MainActivity.finish()
                                     }
@@ -206,13 +229,11 @@ class MainActivity : ComponentActivity() {
                         } else {
                             lastBackPressTime = currentTime
                             Toast.makeText(this@MainActivity, getString(R.string.press_back_again_to_exit), Toast.LENGTH_SHORT).show()
-
                         }
                     } else {
                         navController.popBackStack()
                     }
                 }
-
 
                 Scaffold(
                     topBar = {
@@ -222,8 +243,8 @@ class MainActivity : ComponentActivity() {
                                     when (currentDestination) {
                                         "lotto" -> stringResource(R.string.app_name)
                                         "astro_input" -> stringResource(R.string.astro_setings)
-                                        "map_picker/{lat}/{lon}" -> stringResource(R.string.select_precisely_on_map)
-                                        "natal_chart" -> stringResource(R.string.natal_chart)
+                                        "saved_list" -> stringResource(R.string.saved_combinations)
+                                        "natal_chart" ->  formattedTitle
                                         else -> ""
                                     }
                                 )
@@ -231,70 +252,64 @@ class MainActivity : ComponentActivity() {
                             navigationIcon = {
                                 if (currentDestination != "lotto") {
                                     IconButton(onClick = { navController.popBackStack() }) {
-                                        Icon(
-                                            Icons.AutoMirrored.Filled.ArrowBack,
-                                            contentDescription = stringResource(R.string.back_prefix)
-                                        )
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_prefix))
                                     }
                                 }
                             }
                         )
                     },
-
-
-
                     bottomBar = {
                         Column {
-                            // Prikaz banera iznad donjeg menija
                             BannerAdView()
-
                             BottomAppBar {
-                                IconButton(
-                                    onClick = {
-                                        navController.navigate("lotto") {
-                                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                ) {
+                                IconButton(onClick = {
+                                    navController.navigate("lotto") {
+                                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }, modifier = Modifier.padding(horizontal = 16.dp)) {
                                     Icon(
-                                        imageVector = Icons.Default.Home,
-                                        contentDescription = stringResource(R.string.home)
+                                        painter = painterResource(id = R.drawable.ic_home),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        contentDescription = stringResource(R.string.home),
+                                        modifier = Modifier.size(UiConstants.ICON_SIZE)
+                                    )
+                                }
+                                IconButton(onClick = { navController.navigate("astro_input") }, modifier = Modifier.padding(horizontal = 16.dp)) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_tools),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        contentDescription = stringResource(R.string.astro_setings),
+                                        modifier = Modifier.size(UiConstants.ICON_SIZE)
                                     )
                                 }
 
-                                IconButton(
-                                    onClick = { navController.navigate("natal_chart") },
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                ) {
+
+                                IconButton(onClick = { navController.navigate("saved_list") }, modifier = Modifier.padding(horizontal = 16.dp)) {
                                     Icon(
-                                        imageVector = Icons.Default.Star,
-                                        contentDescription = stringResource(R.string.natal_chart)
+                                        painter = painterResource(id = R.drawable.ic_list), // tvoja ikonica
+                                        contentDescription = "Saved",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(UiConstants.ICON_SIZE)
                                     )
                                 }
 
-                                IconButton(
-                                    onClick = { navController.navigate("astro_input") },
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                ) {
+                                IconButton(onClick = { navController.navigate("natal_chart") }, modifier = Modifier.padding(horizontal = 16.dp)) {
                                     Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = stringResource(R.string.astro_setings)
+                                        painter = painterResource(id = R.drawable.ic_astro),
+                                        contentDescription = stringResource(R.string.natal_chart),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(UiConstants.ICON_SIZE)
                                     )
                                 }
+
+
+
                             }
                         }
                     }
-
-
-                )
-                { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = "lotto",
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
+                ) { innerPadding ->
+                    NavHost(navController = navController, startDestination = "lotto", modifier = Modifier.padding(innerPadding)) {
                         composable("lotto") {
                             LottoApp(
                                 showRewardedAd = { onReward ->
@@ -305,22 +320,18 @@ class MainActivity : ComponentActivity() {
                                                 Log.d(TAG, "Rewarded ad dismissed")
                                                 AdHelper.loadRewardedAd(this@MainActivity)
                                             }
-
                                             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                                                 Log.e(TAG, "Rewarded ad failed: ${adError.message}")
                                                 onReward()
                                             }
-
                                             override fun onAdShowedFullScreenContent() {
                                                 Log.d(TAG, "Rewarded ad showed")
                                             }
                                         }
-
                                         ad.show(this@MainActivity, OnUserEarnedRewardListener {
                                             Log.d(TAG, "User earned reward")
                                             onReward()
                                         })
-
                                     } else {
                                         Log.d(TAG, "Rewarded ad not ready")
                                         onReward()
@@ -331,68 +342,19 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-
-                        composable("astro_input") { backStackEntry ->
-                            var latitude by rememberSaveable { mutableStateOf(40.7128) }
-                            var longitude by rememberSaveable { mutableStateOf(-74.0060) }
-
-                            val pickedLat by backStackEntry.savedStateHandle
-                                .getStateFlow("picked_lat", latitude)
-                                .collectAsState()
-
-                            val pickedLon by backStackEntry.savedStateHandle
-                                .getStateFlow("picked_lon", longitude)
-                                .collectAsState()
-
-                            LaunchedEffect(pickedLat, pickedLon) {
-                                if (pickedLat != latitude || pickedLon != longitude) {
-                                    latitude = pickedLat
-                                    longitude = pickedLon
-                                    backStackEntry.savedStateHandle.remove<Double>("picked_lat")
-                                    backStackEntry.savedStateHandle.remove<Double>("picked_lon")
-                                }
-                            }
-
+                        composable("astro_input") {
                             AstroUserInputScreen(
-                                onConfirm = { navController.popBackStack() },
-                                onOpenMap = { lat, lon ->
-                                    navController.navigate("map_picker/$lat/$lon")
-                                },
-                                initialLat = latitude,
-                                initialLon = longitude
+                                onConfirm = { navController.popBackStack() }
                             )
                         }
-
-                        composable(
-                            "map_picker/{lat}/{lon}",
-                            arguments = listOf(
-                                navArgument("lat") { type = NavType.FloatType },
-                                navArgument("lon") { type = NavType.FloatType }
-                            )
-                        ) { backStackEntry ->
-                            val lat = backStackEntry.arguments?.getFloat("lat")?.toDouble() ?: 40.7128
-                            val lon = backStackEntry.arguments?.getFloat("lon")?.toDouble() ?: -74.0060
-
-                            MapLibrePickerScreen(
-                                initialLat = lat,
-                                initialLon = lon,
-                                onLocationPicked = { newLat, newLon ->
-                                    navController.previousBackStackEntry
-                                        ?.savedStateHandle?.apply {
-                                            set("picked_lat", newLat)
-                                            set("picked_lon", newLon)
-                                        }
-                                    navController.popBackStack()
-                                },
-                                onCancel = {
-                                    navController.popBackStack()
-                                }
-                            )
+                        composable("saved_list") {
+                            SavedListScreen()
                         }
+
+
                         composable("natal_chart") {
                             NatalChartScreen()
                         }
-
                     }
                 }
             }

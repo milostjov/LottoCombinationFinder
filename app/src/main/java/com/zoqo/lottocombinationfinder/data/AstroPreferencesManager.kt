@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.zoqo.lottocombinationfinder.ui.AstroHouseSystem
 import com.zoqo.lottocombinationfinder.ui.AstroInputData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,19 +23,10 @@ object AstroPreferencesManager {
     private val DATE_KEY = longPreferencesKey("birth_date_millis")
     private val HOUR_KEY = intPreferencesKey("birth_hour")
     private val MINUTE_KEY = intPreferencesKey("birth_minute")
-    private val LAT_KEY = doublePreferencesKey("latitude")
-    private val LON_KEY = doublePreferencesKey("longitude")
-    private val HOUSE_KEY = stringPreferencesKey("house_system")
-    private val CITY_NAME_KEY = stringPreferencesKey("city_name")
-
     // dodatni astrološki parametri
-    private val TIMEZONE_KEY = stringPreferencesKey("timezone_id")                    // npr. Europe/Belgrade
-    private val ZODIAC_TYPE_KEY = stringPreferencesKey("zodiac_type")                  // tropical/sideral
-    private val AYANAMSA_KEY = stringPreferencesKey("ayanamsa")                        // Lahiri itd.
-    private val EPHEMERIS_TYPE_KEY = stringPreferencesKey("ephemeris_type")            // swisseph/jpl/moshier
+
     private val EXTRA_BODIES_KEY = stringPreferencesKey("extra_bodies")                // npr. "Ceres,Chiron,Eris"
-    private val ORBS_KEY = doublePreferencesKey("orb_degree")                          // npr. 6.0
-    private val DAY_NIGHT_KEY = stringPreferencesKey("day_night_mode")                 // diurnal/nocturnal
+
 
     // postojeći loto ključevi
     private val TOTAL_NUMBERS_KEY = stringPreferencesKey("total_numbers")
@@ -48,19 +38,8 @@ object AstroPreferencesManager {
             prefs[DATE_KEY] = data.date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             prefs[HOUR_KEY] = data.hour
             prefs[MINUTE_KEY] = data.minute
-            prefs[LAT_KEY] = data.latitude
-            prefs[LON_KEY] = data.longitude
-            prefs[HOUSE_KEY] = data.houseSystem.name
-            prefs[CITY_NAME_KEY] = data.cityName
-
-            // dodatni parametri ako želiš da proširiš AstroInputData model:
-            data.timeZoneId?.let { prefs[TIMEZONE_KEY] = it }
-            data.zodiacType?.let { prefs[ZODIAC_TYPE_KEY] = it }
-            data.ayanamsa?.let { prefs[AYANAMSA_KEY] = it }
-            data.ephemerisType?.let { prefs[EPHEMERIS_TYPE_KEY] = it }
             data.extraBodies?.let { prefs[EXTRA_BODIES_KEY] = it.joinToString(",") }
-            data.orb?.let { prefs[ORBS_KEY] = it }
-            data.dayNightMode?.let { prefs[DAY_NIGHT_KEY] = it }
+            prefs[RANK_INPUT_KEY] = data.rank
         }
     }
 
@@ -72,63 +51,39 @@ object AstroPreferencesManager {
 
             val hour = prefs[HOUR_KEY] ?: 12
             val minute = prefs[MINUTE_KEY] ?: 0
-            val lat = prefs[LAT_KEY] ?: 40.7128
-            val lon = prefs[LON_KEY] ?: -74.0060
-            val cityName = prefs[CITY_NAME_KEY] ?: ""
-
-            val house = prefs[HOUSE_KEY]?.let {
-                AstroHouseSystem.valueOf(it)
-            } ?: AstroHouseSystem.PLACIDUS
 
             // dodatna polja
-            val timeZoneId = prefs[TIMEZONE_KEY] ?: ZoneId.systemDefault().id
-            val zodiacType = prefs[ZODIAC_TYPE_KEY] ?: "tropical"
-            val ayanamsa = prefs[AYANAMSA_KEY] ?: "lahiri"
-            val ephemerisType = prefs[EPHEMERIS_TYPE_KEY] ?: "swisseph"
             val extraBodies = prefs[EXTRA_BODIES_KEY]
                 ?.split(",")
                 ?.map { it.trim() }
                 ?.filter { it.isNotEmpty() }
                 ?: listOf("Mercury", "Chiron")
-            val orb = prefs[ORBS_KEY] ?: 6.0
-            val dayNightMode = prefs[DAY_NIGHT_KEY] ?: "diurnal"
-
-
-
+            val rank = prefs[RANK_INPUT_KEY] ?: "123456"
 
             AstroInputData(
                 date = date,
                 hour = hour,
                 minute = minute,
-                latitude = lat,
-                longitude = lon,
-                houseSystem = house,
-                cityName = cityName,
-                timeZoneId = timeZoneId,
-                zodiacType = zodiacType,
-                ayanamsa = ayanamsa,
-                ephemerisType = ephemerisType,
                 extraBodies = extraBodies,
-                orb = orb,
-                dayNightMode = dayNightMode
+                rank = rank
             )
         }
     }
 
-    suspend fun saveLottoSettings(context: Context, total: String, choose: String, rank: String) {
+    suspend fun saveLottoSettings(context: Context, total: String, choose: String) {
         context.astroDataStore.edit { prefs ->
             prefs[TOTAL_NUMBERS_KEY] = total
             prefs[NUMBERS_TO_CHOOSE_KEY] = choose
-            prefs[RANK_INPUT_KEY] = rank
+
         }
     }
 
-    fun loadLottoSettings(context: Context): Flow<Triple<String, String, String>> {
+    fun loadLottoSettings(context: Context): Flow<Pair<String, String>> {
         return context.astroDataStore.data.map { prefs ->
-            val total = prefs[TOTAL_NUMBERS_KEY] ?: "39"
-            val choose = prefs[NUMBERS_TO_CHOOSE_KEY] ?: "7"
-            val rank = prefs[RANK_INPUT_KEY] ?: "123456"
-            Triple(total, choose, rank)
+            val total = prefs[TOTAL_NUMBERS_KEY] ?: "69"
+            val choose = prefs[NUMBERS_TO_CHOOSE_KEY] ?: "5"
+            Pair(total, choose)
         }
     }
+
 }

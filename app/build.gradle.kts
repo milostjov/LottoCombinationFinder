@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -22,6 +24,7 @@ android {
             useSupportLibrary = true
         }
     }
+
 
     buildTypes {
         release {
@@ -60,6 +63,7 @@ android {
 
 
 
+
 dependencies {
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
@@ -71,6 +75,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.location)
 
+
+
+    implementation(libs.play.services.auth.v2100)
+    implementation(libs.firebase.auth.v2230)
 
 
     implementation(libs.androidx.core.ktx)

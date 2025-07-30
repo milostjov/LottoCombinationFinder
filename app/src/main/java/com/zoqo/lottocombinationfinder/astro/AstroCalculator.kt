@@ -5,6 +5,9 @@ import swisseph.SwissEph
 import swisseph.SweConst
 import swisseph.SweDate
 import java.time.ZoneId
+import com.zoqo.lottocombinationfinder.data.PlanetData
+
+
 
 object AstroCalculator {
 
@@ -28,13 +31,9 @@ object AstroCalculator {
         SweConst.SE_PLUTO to "♇"
     )
 
-    fun getPlanetPositions(data: AstroInputData): List<Pair<String, Double>> {
-        val zone = try {
-            ZoneId.of(data.timeZoneId)
-        } catch (_: Exception) {
-            ZoneId.systemDefault()
-        }
+    fun getPlanetPositions(data: AstroInputData): List<PlanetData> {
 
+        val zone = ZoneId.systemDefault()
         val localDateTime = data.date.atTime(data.hour, data.minute)
         val utc = localDateTime.atZone(zone).withZoneSameInstant(ZoneId.of("UTC"))
 
@@ -49,9 +48,9 @@ object AstroCalculator {
         )
 
         val jd = date.julDay
-        val flags = SweConst.SEFLG_SWIEPH
+        val flags = SweConst.SEFLG_SWIEPH or SweConst.SEFLG_SPEED
 
-        val result = mutableListOf<Pair<String, Double>>()
+        val result = mutableListOf<PlanetData>()
 
         for ((planetId, symbol) in planetSymbols) {
             val xx = DoubleArray(6)
@@ -64,7 +63,16 @@ object AstroCalculator {
             }
 
             val longitude = xx[0] % 360.0
-            result.add(symbol to longitude)
+            val speed = xx[3] // < 0 znači retrogradno kretanje
+
+            result.add(
+                PlanetData(
+                    symbol = symbol,
+                    longitude = longitude,
+                    retrograde = speed < 0
+                )
+            )
+
         }
 
         return result

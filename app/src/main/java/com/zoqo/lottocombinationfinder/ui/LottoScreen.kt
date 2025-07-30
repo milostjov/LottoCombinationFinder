@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,11 +34,11 @@ import com.zoqo.lottocombinationfinder.components.GenerateButton
 import com.zoqo.lottocombinationfinder.components.LottoInputFields
 import com.zoqo.lottocombinationfinder.components.LottoResult
 import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
-import com.zoqo.lottocombinationfinder.utils.calculateTotalCombinations
-import com.zoqo.lottocombinationfinder.utils.findCombination
+import com.zoqo.lottocombinationfinder.components.calculateTotalCombinations
+import com.zoqo.lottocombinationfinder.components.findCombination
+import com.zoqo.lottocombinationfinder.data.SavedCombinationsManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.math.BigInteger
 
@@ -51,6 +53,7 @@ fun LottoApp(
 ) {
     val context = LocalContext.current
     var resultText by rememberSaveable { mutableStateOf("") }
+//    var selectedPlanet by rememberSaveable { mutableStateOf("Jupiter") } // podrazumevana vrednost
 
     var totalNumbers by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     var numbersToChoose by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
@@ -65,36 +68,80 @@ fun LottoApp(
     LaunchedEffect(lottoSettings) {
         val value = lottoSettings
         if (!initialized && value != null) {
-            val (total, choose, rank) = value
+            val (total, choose) = value
             totalNumbers = TextFieldValue(total)
             numbersToChoose = TextFieldValue(choose)
-            if (rankInput.text.isBlank()) {
-                rankInput = TextFieldValue(rank)
-            }
+            val astroInput = AstroPreferencesManager.load(context).first()
+            val savedRank = astroInput.rank?.takeIf { it.isNotBlank() } ?: ""
+            rankInput = TextFieldValue(savedRank)
             initialized = true
         }
 
     }
 
+//    LaunchedEffect(initialized) {
+//        if (initialized) {
+//            snapshotFlow {
+//                Triple(totalNumbers.text, numbersToChoose.text, rankInput.text)
+//            }.collectLatest { (total, choose) ->
+//                AstroPreferencesManager.saveLottoSettings(
+//                    context = context.applicationContext,
+//                    total = total,
+//                    choose = choose
+//
+//                )
+//            }
+//        }
+//    }
+
     LaunchedEffect(initialized) {
         if (initialized) {
             snapshotFlow {
                 Triple(totalNumbers.text, numbersToChoose.text, rankInput.text)
-            }.collectLatest { (total, choose, rank) ->
+            }.collectLatest { (total, choose, _) ->
+                // Sačuvaj lotto podešavanja
                 AstroPreferencesManager.saveLottoSettings(
                     context = context.applicationContext,
                     total = total,
-                    choose = choose,
-                    rank = rank
+                    choose = choose
                 )
+
+                // Ako su brojevi validni, automatski izračunaj i sačuvaj rank
+                val totalInt = total.toIntOrNull()
+                val chooseInt = choose.toIntOrNull()
+
+                if (totalInt != null && chooseInt != null && totalInt > 0 && chooseInt > 0 && totalInt >= chooseInt) {
+                    val astroInput = AstroPreferencesManager.load(context).first()
+                    val planetName = astroInput.extraBodies?.firstOrNull() ?: "Mars"
+
+                    val newRank = AstroRankCalculator.calculateRankFromPlanetDistance(
+                        date = astroInput.date,
+                        hour = astroInput.hour,
+                        minute = astroInput.minute,
+                        totalNumbers = totalInt,
+                        numbersToChoose = chooseInt,
+                        planetName = planetName
+                    )
+
+                    // Čuvamo rank odmah u DataStore
+                    val updatedData = astroInput.copy(rank = newRank.toString())
+
+                    AstroPreferencesManager.save(
+                        context = context.applicationContext,
+                        data = updatedData
+                    )
+
+
+                    // Ažuriramo polje na ekranu
+                    rankInput = TextFieldValue(newRank.toString())
+                }
             }
         }
     }
 
+
     Scaffold(
-//        bottomBar = {
-//            BannerAdView() // fiksiran pri dnu
-//        }
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -109,80 +156,92 @@ fun LottoApp(
                 onTotalNumbersChange = { totalNumbers = it },
                 numbersToChoose = numbersToChoose,
                 onNumbersToChooseChange = { numbersToChoose = it },
-                rankInput = rankInput,
-                onRankInputChange = { rankInput = it }
+
             )
 
-            //Text(stringResource(R.string.or_generate_rank_num))
-            val coroutineScope = rememberCoroutineScope()
-
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    coroutineScope.launch {
-                        // ➊ Uzmemo SAČUVANE astro podatke (datum, sat, minut) – samo jedan emit
-                        val astroInput = AstroPreferencesManager
-                            .load(context)
-                            .first()
-
-                        // ➋ Uzmemo SAČUVANE lotto postavke (total / choose) – samo jedan emit
-                        val (totalStr, chooseStr, _) = AstroPreferencesManager
-                            .loadLottoSettings(context)
-                            .first()
-
-                        val totalNumbers = totalStr.toIntOrNull() ?: 39   // fallback
-                        val numbersToChoose = chooseStr.toIntOrNull() ?: 7 // fallback
-
-                        // ➌ Izračunamo rank
-                        val rank = AstroRankCalculator.calculateRankFromSunSign(
-                            birthDate = astroInput.date,
-                            birthHour = astroInput.hour,
-                            birthMinute = astroInput.minute,
-                            totalNumbers = totalNumbers,
-                            numbersToChoose = numbersToChoose
-                        )
-
-                        // ➍ Upis u polje – i dalje ga korisnik može menjati
-                        rankInput = TextFieldValue(rank.toString())
-                    }
-                }
-            ) {
-                Text(stringResource(R.string.or_generate_rank_num))
-            }
 
 
-
+            var showRewardDialog by remember { mutableStateOf(false) }
 
             GenerateButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    showRewardedAd {
-                        val total = totalNumbers.text.toIntOrNull()
-                        val choose = numbersToChoose.text.toIntOrNull()
-                        val rank = rankInput.text.toBigIntegerOrNull()
-
-                        resultText = when {
-                            total == null || choose == null || total <= 0 || choose <= 0 || total < choose ->
-                                context.getString(R.string.error_invalid_total_choose)
-
-                            rank == null || rank <= BigInteger.ZERO || rank > calculateTotalCombinations(total, choose) ->
-                                context.getString(R.string.error_invalid_rank, calculateTotalCombinations(total, choose))
-
-                            else -> {
-                                val combination = findCombination(rank.toInt(), total, choose)
-                                context.getString(
-                                    R.string.result_combination,
-                                    combination.joinToString(", ")
-                                )
-                            }
-                        }
-                    }
+                    showRewardDialog = true
                 }
             )
+
+            val coroutineScope = rememberCoroutineScope()
+            if (showRewardDialog) {
+                AlertDialog(
+                    onDismissRequest = { showRewardDialog = false },
+                    title = { Text(stringResource(R.string.watch_ad_title)) },
+                    text = { Text(stringResource(R.string.watch_ad_description)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showRewardDialog = false
+                            showRewardedAd {
+
+                                coroutineScope.launch {
+                                    // Učitavamo lotto i astro podešavanja direktno iz DataStore-a
+                                    val lottoSettings = AstroPreferencesManager.loadLottoSettings(context).first()
+                                    val astroSettings = AstroPreferencesManager.load(context).first()
+
+                                    val total = lottoSettings.first.toIntOrNull()
+                                    val choose = lottoSettings.second.toIntOrNull()
+                                    val rank = astroSettings.rank?.toBigIntegerOrNull()
+
+                                    resultText = when {
+                                        total == null || choose == null || total <= 0 || choose <= 0 || total < choose ->
+                                            context.getString(R.string.error_invalid_total_choose)
+
+                                        rank == null || rank <= BigInteger.ZERO || rank > calculateTotalCombinations(total, choose) ->
+                                            context.getString(R.string.error_invalid_rank, calculateTotalCombinations(total, choose))
+
+                                        else -> {
+                                            val combination = findCombination(rank.toInt(), total, choose)
+                                            val result = context.getString(
+                                                R.string.result_combination,
+                                                combination.joinToString(", ")
+                                            )
+
+                                            // Sačuvaj rezultat
+                                            SavedCombinationsManager.saveCombination(
+                                                context = context,
+                                                combination = result,
+                                                date = astroSettings.date,
+                                                hour = astroSettings.hour,
+                                                minute = astroSettings.minute,
+                                                totalNumbers = total,
+                                                numbersToChoose = choose,
+                                                planetName = astroSettings.extraBodies?.firstOrNull() ?: "Mars"
+                                            )
+
+                                            result
+                                        }
+
+                                    }
+                                }
+                            }
+                        }) {
+                            Text(stringResource(R.string.watch_ad_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showRewardDialog = false }) {
+                            Text(stringResource(R.string.cancel))
+                        }
+                    }
+                )
+            }
+
+
 
             LottoResult(resultText)
         }
     }
+
+
+
 }
 
 

@@ -14,15 +14,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.zoqo.lottocombinationfinder.R
 
+
 @Composable
 fun LottoInputFields(
     totalNumbers: TextFieldValue,
     onTotalNumbersChange: (TextFieldValue) -> Unit,
     numbersToChoose: TextFieldValue,
     onNumbersToChooseChange: (TextFieldValue) -> Unit,
-    rankInput: TextFieldValue,
-    onRankInputChange: (TextFieldValue) -> Unit
+
 ) {
+
+
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedTextField(
             value = totalNumbers,
@@ -40,14 +42,5 @@ fun LottoInputFields(
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = rankInput,
-            onValueChange = onRankInputChange,
-            label = { Text(stringResource(R.string.enter_rank_hint)) },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
     }
-
-
 }

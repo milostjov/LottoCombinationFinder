@@ -1,3 +1,4 @@
+//LottoResult.kt
 package com.zoqo.lottocombinationfinder.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,19 +11,19 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 
 @Composable
-fun LottoResult(resultText: String) {
+fun LottoResult(resultText: String, modifier: Modifier = Modifier  ) {
     if (resultText.startsWith("Combination:")) {
         val numbers = resultText
             .removePrefix("Combination:")
             .split(",")
             .mapNotNull { it.trim().toIntOrNull() }
 
-        FlowRow(
+        FlowRow (
             mainAxisSpacing = 8.dp,
             crossAxisSpacing = 8.dp,
-            modifier = Modifier
+            modifier = modifier
                 .padding(top = 16.dp)
-                .fillMaxWidth()
+
         ) {
             numbers.forEach { LottoBall(it) }
         }

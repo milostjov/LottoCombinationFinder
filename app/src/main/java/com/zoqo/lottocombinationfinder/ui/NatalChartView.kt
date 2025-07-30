@@ -14,24 +14,29 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.center
 import kotlin.math.*
 import androidx.compose.animation.core.*
+import androidx.compose.ui.res.stringResource
+import com.zoqo.lottocombinationfinder.R
+import com.zoqo.lottocombinationfinder.data.PlanetData
+/**
+ * Podaci o planeti sa retrogradnošću
+ */
 
 
-private val zodiac = listOf("♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓")
+private val zodiac = listOf("♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓")
 
 @Composable
 fun NatalChartView(
     data: AstroInputData,
-    planets: List<Pair<String, Double>>
+    planets: List<PlanetData>
 ) {
-    var scale       by remember { mutableStateOf(1f) }
+    var scale by remember { mutableStateOf(1f) }
     var translation by remember { mutableStateOf(Offset.Zero) }
-    var selected    by remember { mutableStateOf<String?>(null) }
+    var selected by remember { mutableStateOf<String?>(null) }
     val planetCenters = remember { mutableStateListOf<Pair<String, Offset>>() }
     var debugTap by remember { mutableStateOf<Offset?>(null) }
-
+    val legendText = stringResource(R.string.retrograde_planet)
     val pulseAnim = rememberInfiniteTransition()
     val pulseRadius by pulseAnim.animateFloat(
         initialValue = 0f,
@@ -51,8 +56,6 @@ fun NatalChartView(
         )
     )
 
-
-
     val gestureMod = Modifier
         .pointerInput(Unit) {
             detectTransformGestures { _, pan, zoom, _ ->
@@ -60,17 +63,11 @@ fun NatalChartView(
                 translation += pan
             }
         }
-
-
-
         .pointerInput(scale, translation) {
             detectTapGestures { tap ->
                 val canvasSize = this.size
                 val pivot = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
-
-                // Obrnuto od withTransform: prvo pomeri, pa skaliraj oko centra
                 val raw = ((tap - pivot) / scale + pivot) - translation
-
 
                 debugTap = raw
 
@@ -82,8 +79,6 @@ fun NatalChartView(
             }
         }
 
-
-
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,16 +87,13 @@ fun NatalChartView(
     ) {
         planetCenters.clear()
 
-
-
-
         // Apply scale and translation transform for drawing
         withTransform({
             scale(scale, scale, pivot = center)
             translate(translation.x, translation.y)
         }) {
-            val R      = size.minDimension / 2.5f
-            val C      = center
+            val R = size.minDimension / 2.5f
+            val C = center
             val labelR = R + 30f
 
             drawCircle(Color.DarkGray, R, C)
@@ -144,26 +136,32 @@ fun NatalChartView(
                 }
             }
 
-            // Planets
-            planets.forEach { (sym, lon) ->
-                val ang = Math.toRadians(lon - 90)
+            // Planets with retrograde mark
+            planets.forEach { planet ->
+                val ang = Math.toRadians(planet.longitude - 90)
                 val pos = Offset(
                     C.x + (R - 78) * cos(ang).toFloat(),
                     C.y + (R - 78) * sin(ang).toFloat()
                 )
-                planetCenters += sym to pos
+                planetCenters += planet.symbol to pos
+
+                //  tekst koji uključuje ℞ i menja boju
+                val display = if (planet.retrograde) "${planet.symbol}" else planet.symbol
+                val paint = android.graphics.Paint().apply {
+                    color = if (planet.retrograde)
+                        android.graphics.Color.CYAN        // retrogradne označi plavkasto
+                    else
+                        android.graphics.Color.YELLOW
+                    textAlign = android.graphics.Paint.Align.CENTER
+                    textSize = 28f
+                    isAntiAlias = true
+                }
                 drawIntoCanvas { cv ->
-                    cv.nativeCanvas.drawText(
-                        sym, pos.x, pos.y + 10,
-                        android.graphics.Paint().apply {
-                            color = android.graphics.Color.YELLOW
-                            textAlign = android.graphics.Paint.Align.CENTER
-                            textSize = 28f
-                            isAntiAlias = true
-                        }
-                    )
+                    cv.nativeCanvas.drawText(display, pos.x, pos.y + 10, paint)
                 }
             }
+
+            // Pulsirajući efekat oko selektovane planete
             selected?.let { sym ->
                 val pos = planetCenters.firstOrNull { it.first == sym }?.second
                 if (pos != null) {
@@ -176,26 +174,12 @@ fun NatalChartView(
                 }
             }
 
-
-            // Pulsirajući efekat oko selektovane planete
-            selected?.let { sym ->
-                val pos = planetCenters.firstOrNull { it.first == sym }?.second
-                if (pos != null) {
-                    drawCircle(
-                        color = Color.Yellow.copy(alpha = 0.3f),
-                        radius = 28f + pulseRadius,
-                        center = pos,
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                }
-            }
-
-
             // Aspects
             val asp = listOf(0.0, 60.0, 90.0, 120.0, 180.0)
-            val orb = data.orb ?: 6.0
+            val orb = 6.0
             for (i in planets.indices) for (j in i + 1 until planets.size) {
-                val (_, l1) = planets[i]; val (_, l2) = planets[j]
+                val l1 = planets[i].longitude
+                val l2 = planets[j].longitude
                 val d = min(abs((l1 - l2 + 360) % 360), 360 - abs((l1 - l2 + 360) % 360))
                 if (asp.any { abs(d - it) <= orb }) {
                     drawLine(
@@ -206,11 +190,40 @@ fun NatalChartView(
                     )
                 }
             }
+            // --- Legenda za retrogradnost ---
+            val legendCircleRadius = 10f
+            val legendMargin = 16f
+
+// Pozicija legende (donji desni ugao canvasa)
+            val legendX = legendMargin * 2
+            val legendY = size.height - legendMargin * 2
+
+
+// Mali cyan krug
+            drawCircle(
+                color = Color.Cyan,
+                radius = legendCircleRadius,
+                center = Offset(legendX, legendY)
+            )
+
+// Tekst pored kruga
+
+
+            drawIntoCanvas { cv ->
+                cv.nativeCanvas.drawText(
+                    legendText,
+                    legendX + 20f,               // razmak od kruga
+                    legendY + 5f,                // mala vertikalna korekcija
+                    android.graphics.Paint().apply {
+                        color = android.graphics.Color.WHITE
+                        textAlign = android.graphics.Paint.Align.LEFT
+                        textSize = 26f
+                        isAntiAlias = true
+                    }
+                )
+            }
 
         }
-//        debugTap?.let {
-//            drawCircle(Color.Red, radius = 10f, center = it)
-//        }
     }
 
     selected?.let { sym ->

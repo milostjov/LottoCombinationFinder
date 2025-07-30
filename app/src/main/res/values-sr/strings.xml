@@ -16,7 +16,7 @@
     <string name="total_numbers">Ukupan broj</string>
     <string name="numbers_to_choose">Broj za izbor</string>
     <string name="enter_rank_hint">Unesite rang (npr. vaš datum rođenja)</string>
-    <string name="or_generate_rank_num">Generiši rang koristeći Swiss Ephemeris</string>
+    <string name="generate_rank_num">Generiši rang</string>
     <string name="enter_city">Unesite grad</string>
     <string name="find_combination">Pronađi kombinaciju</string>
     <string name="or_prefix">Ili</string>
@@ -29,7 +29,7 @@
     <string name="day_night_mode">Dnevni/noćni režim</string>
     <string name="orb_tolerance">Tolerancija orba (°)</string>
     <string name="time_zone">Vremenska zona</string>
-    <string name="extra_bodies">Dodatna tela (razdvojena zarezima)</string>
+    <string name="select_lucky_planet">Dodatna tela (razdvojena zarezima)</string>
     <string name="no_internet_title">Nema internet veze</string>
     <string name="no_internet_message">Ova aplikacija zahteva aktivnu internet konekciju. Uključite internet na telefonu i kliknite na „Pokušaj ponovo“.</string>
     <string name="retry">Pokušaj ponovo</string>
@@ -61,6 +61,12 @@
         <string name="desc_neptune">Neptun se odnosi na intuiciju, snove i duhovnost.</string>
         <string name="desc_pluto">Pluton simbolizuje transformaciju, moć i regeneraciju.</string>
         <string name="desc_unknown">Nema dostupnih podataka.</string>
+
+        <string name="rank_info_title">Šta je rang kombinacije?</string>
+        <string name="rank_info_text">
+U svakoj igri na sreću zasnovanoj na izvlačenju brojeva postoji određeni redosled dobitnih brojeva. "Rang" u ovoj aplikaciji odražava tvoju ličnu usklađenost sa tim redosledom. Izračunava se na osnovu udaljenosti tvoje izabrane planete od Zemlje u tačnom datumu i vremenu izvlačenja. Ovaj kosmički odnos može suptilno uticati na to koje su brojevne kombinacije najviše u skladu s tobom.
+    </string>
+
 
 
 
