@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "943112717783",
+    "project_id": "astrocombinationfinder",
+    "storage_bucket": "astrocombinationfinder.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943112717783:android:38576858b3add7d4793792",
+        "android_client_info": {
+          "package_name": "com.zoqo.lottocombinationfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2bfghOn9Xptn4s2L4NQLdFYpKE1nFHgI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

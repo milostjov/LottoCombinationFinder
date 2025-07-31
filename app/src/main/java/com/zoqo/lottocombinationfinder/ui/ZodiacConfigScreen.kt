@@ -254,7 +254,7 @@ fun AstroUserInputScreen(
         // Pratimo promene relevantnih polja i automatski ažuriramo rank
         LaunchedEffect(birthDate, birthHour, birthMinute, selectedPlanet) {
             coroutineScope.launch {
-                val (totalStr, chooseStr) = AstroPreferencesManager.loadLottoSettings(context).first()
+                //val (totalStr, chooseStr) = AstroPreferencesManager.loadLottoSettings(context).first()
                // val totalNumbers = totalStr.toIntOrNull() ?: 39
                // val numbersToChoose = chooseStr.toIntOrNull() ?: 7
 
@@ -280,9 +280,9 @@ fun AstroUserInputScreen(
             onClick = {
                 coroutineScope.launch {
 
-                    val (totalStr, chooseStr) = AstroPreferencesManager
-                        .loadLottoSettings(context)
-                        .first()
+//                    val (totalStr, chooseStr) = AstroPreferencesManager
+//                        .loadLottoSettings(context)
+//                        .first()
 
                    // val totalNumbers = totalStr.toIntOrNull() ?: 39
                    // val numbersToChoose = chooseStr.toIntOrNull() ?: 7
