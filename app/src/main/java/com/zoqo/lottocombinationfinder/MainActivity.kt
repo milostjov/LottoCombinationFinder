@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,12 +53,12 @@ import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.zoqo.lottocombinationfinder.ads.AdHelper
+import com.zoqo.lottocombinationfinder.ads.BannerAdView
 import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
 import com.zoqo.lottocombinationfinder.ui.AstroInputData
 import com.zoqo.lottocombinationfinder.ui.AstroUserInputScreen
-import com.zoqo.lottocombinationfinder.ui.BannerAdView
 import com.zoqo.lottocombinationfinder.ui.LottoApp
-import com.zoqo.lottocombinationfinder.ui.NatalChartScreen
+import com.zoqo.lottocombinationfinder.chart.NatalChartScreen
 import com.zoqo.lottocombinationfinder.ui.NoInternetDialog
 import com.zoqo.lottocombinationfinder.ui.SavedListScreen
 import com.zoqo.lottocombinationfinder.ui.hasInternetConnection
@@ -134,7 +131,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun loadAdWithTimeout() {
         val scope = CoroutineScope(Dispatchers.Main)
         scope.launch {

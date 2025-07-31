@@ -6,13 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-// Custom gold-dark color scheme
-//private val Gold = Color(0xFFFFD700)
-//private val DarkGold = Color(0xFFB8860B)
-//private val DeepBackground = Color(0xFF121212)
-//private val SurfaceDark = Color(0xFF1E1E1E)
-//private val TextPrimary = Color(0xFFFFFFFF)
-//private val TextSecondary = Color(0xFFCCCCCC)
 private val AppShapes = Shapes(
     small = RoundedCornerShape(4.dp),
     medium = RoundedCornerShape(8.dp),
@@ -34,7 +27,7 @@ private val LuxDarkColorScheme = darkColorScheme(
 
 @Composable
 fun LottoCombinationFinderTheme(
-    darkTheme: Boolean = true, // Forcira tamnu temu jer je luksuzni stil
+    // Forcira tamnu temu jer je luksuzni stil
     content: @Composable () -> Unit
 ) {
     MaterialTheme(

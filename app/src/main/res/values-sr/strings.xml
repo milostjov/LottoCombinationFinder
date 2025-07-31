@@ -1,34 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Astro Kombinacije</string>
-    <string name="select_house_system">Izaberite sistem kuća:</string>
     <string name="confirm">Potvrdi</string>
     <string name="birth_date">Datum rođenja</string>
     <string name="birth_time">Vreme rođenja</string>
-    <string name="select_precisely_on_map">Nađi na mapi</string>
     <string name="ok">U redu</string>
     <string name="cancel">Otkaži</string>
     <string name="astro_setings">Swiss Ephemeris podešavanja</string>
     <string name="error_invalid_total_choose">Neispravan unos za ukupan broj ili broj za izbor.</string>
     <string name="error_invalid_rank">Neispravan rang. Unesite broj između 1 i %1$d</string>
-    <string name="result_combination">Kombinacija: %1$s</string>
     <string name="save_location">Sačuvaj lokaciju</string>
     <string name="total_numbers">Ukupan broj</string>
     <string name="numbers_to_choose">Broj za izbor</string>
     <string name="enter_rank_hint">Unesite rang (npr. vaš datum rođenja)</string>
-    <string name="generate_rank_num">Generiši rang</string>
-    <string name="enter_city">Unesite grad</string>
     <string name="find_combination">Pronađi kombinaciju</string>
     <string name="or_prefix">Ili</string>
     <string name="back_prefix">Nazad</string>
     <string name="home">Početna</string>
-    <string name="lat_lon_format">Izabrana lokacija: Lat: %1$.5f, Lon: %2$.5f</string>
-    <string name="zodiac_type">Tip zodijaka</string>
-    <string name="ayanamsa">Ajanamsa</string>
-    <string name="ephemeris_type">Tip efemerida</string>
-    <string name="day_night_mode">Dnevni/noćni režim</string>
-    <string name="orb_tolerance">Tolerancija orba (°)</string>
-    <string name="time_zone">Vremenska zona</string>
     <string name="select_lucky_planet">Dodatna tela (razdvojena zarezima)</string>
     <string name="no_internet_title">Nema internet veze</string>
     <string name="no_internet_message">Ova aplikacija zahteva aktivnu internet konekciju. Uključite internet na telefonu i kliknite na „Pokušaj ponovo“.</string>
@@ -67,7 +55,16 @@
 U svakoj igri na sreću zasnovanoj na izvlačenju brojeva postoji određeni redosled dobitnih brojeva. "Rang" u ovoj aplikaciji odražava tvoju ličnu usklađenost sa tim redosledom. Izračunava se na osnovu udaljenosti tvoje izabrane planete od Zemlje u tačnom datumu i vremenu izvlačenja. Ovaj kosmički odnos može suptilno uticati na to koje su brojevne kombinacije najviše u skladu s tobom.
     </string>
 
-
+    <string name="rank_info_short">
+        Vaš kosmički rang kombinacije zasnovan na izabranoj planeti i vremenu.
+    </string>
+    <string name="error_invalid_rank_range">Unesite broj između 1 i %1$d</string>
+    <string name="watch_ad_title">Pogledaj reklamu</string>
+    <string name="watch_ad_description">Pogledajte kratak video da biste dobili svoju brojčanu kombinaciju.</string>
+    <string name="watch_ad_confirm">Gledaj</string>
+    <string name="watch_ad_cancel">Otkaži</string>
+    <string name="retrograde_planet">Retrogradna planeta</string>
+    <string name="saved_combinations">Sačuvane kombinacije</string>
 
 
 

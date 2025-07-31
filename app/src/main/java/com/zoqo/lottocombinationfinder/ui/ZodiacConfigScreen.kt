@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -53,16 +52,13 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import com.zoqo.lottocombinationfinder.R
 import com.zoqo.lottocombinationfinder.components.AnimatedRankDisplay
 import com.zoqo.lottocombinationfinder.components.AstroRankCalculator
 import com.zoqo.lottocombinationfinder.components.calculateTotalCombinations
 import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -72,7 +68,7 @@ import java.text.DateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,14 +97,12 @@ fun AstroUserInputScreen(
     }
 
     var formattedTime = remember(birthHour, birthMinute) {
-        String.format("%02d:%02d", birthHour, birthMinute)
+        String.format(Locale.getDefault(), "%02d:%02d", birthHour, birthMinute)
     }
     var rankInput by rememberSaveable { mutableStateOf("") }
 
     var showRankDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    var displayedRank by rememberSaveable { mutableStateOf("") }
-
 
 
     // Load preferences
@@ -209,7 +203,7 @@ fun AstroUserInputScreen(
                 onTimeSelected = { hour, minute ->
                     birthHour = hour
                     birthMinute = minute
-                    formattedTime = String.format("%02d:%02d", hour, minute) // osveži prikaz
+                    formattedTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute) // osveži prikaz
                     savePreferences(context, scope, birthDate, birthHour, birthMinute, selectedPlanet, rankInput)
 
                 }
@@ -233,7 +227,7 @@ fun AstroUserInputScreen(
 // Dodaj proveru validnosti
         var totalNumbers by remember { mutableStateOf(39) }
         var numbersToChoose by remember { mutableStateOf(7) }
-        val context = LocalContext.current
+        //val context = LocalContext.current
 
         LaunchedEffect(Unit) {
             val (totalStr, chooseStr) = AstroPreferencesManager
@@ -261,8 +255,8 @@ fun AstroUserInputScreen(
         LaunchedEffect(birthDate, birthHour, birthMinute, selectedPlanet) {
             coroutineScope.launch {
                 val (totalStr, chooseStr) = AstroPreferencesManager.loadLottoSettings(context).first()
-                val totalNumbers = totalStr.toIntOrNull() ?: 39
-                val numbersToChoose = chooseStr.toIntOrNull() ?: 7
+               // val totalNumbers = totalStr.toIntOrNull() ?: 39
+               // val numbersToChoose = chooseStr.toIntOrNull() ?: 7
 
                 val rank = AstroRankCalculator.calculateRankFromPlanetDistance(
                     date = birthDate,
@@ -290,8 +284,8 @@ fun AstroUserInputScreen(
                         .loadLottoSettings(context)
                         .first()
 
-                    val totalNumbers = totalStr.toIntOrNull() ?: 39
-                    val numbersToChoose = chooseStr.toIntOrNull() ?: 7
+                   // val totalNumbers = totalStr.toIntOrNull() ?: 39
+                   // val numbersToChoose = chooseStr.toIntOrNull() ?: 7
 
                     val rank = rankInput.toBigIntegerOrNull()
                     val maxRank = calculateTotalCombinations(totalNumbers, numbersToChoose)
@@ -548,25 +542,6 @@ fun savePreferences(
     }
 }
 
-fun isInputValid(
-    birthDate: LocalDate?,
-    birthHour: Int?,
-    birthMinute: Int?,
-    selectedPlanet: String?,
-    rankInput: String?
-): Boolean {
-    return birthDate != null &&
-            birthHour != null &&
-            birthMinute != null &&
-            !selectedPlanet.isNullOrEmpty() &&
-            !rankInput.isNullOrEmpty() &&
-            rankInput.all { it.isDigit() }
-}
-
-fun calculateMaxCombinations(n: Int, k: Int): Long {
-    fun factorial(x: Int): Long = if (x <= 1) 1 else x * factorial(x - 1)
-    return factorial(n) / (factorial(k) * factorial(n - k))
-}
 fun loadSavedValues(context: Context): Pair<Int, Int> {
     val sharedPreferences = context.getSharedPreferences("lotto_prefs", Context.MODE_PRIVATE)
     val totalNumbers = sharedPreferences.getInt("totalNumbers", 49) // default 49

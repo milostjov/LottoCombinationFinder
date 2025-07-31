@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,13 +29,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.zoqo.lottocombinationfinder.R
 import com.zoqo.lottocombinationfinder.components.AstroRankCalculator
-import com.zoqo.lottocombinationfinder.components.GenerateButton
 import com.zoqo.lottocombinationfinder.components.LottoInputFields
-import com.zoqo.lottocombinationfinder.components.LottoResult
 import com.zoqo.lottocombinationfinder.components.LottoResult2
-import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
 import com.zoqo.lottocombinationfinder.components.calculateTotalCombinations
 import com.zoqo.lottocombinationfinder.components.findCombination
+import com.zoqo.lottocombinationfinder.data.AstroPreferencesManager
 import com.zoqo.lottocombinationfinder.data.SavedCombinationsManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -44,9 +41,7 @@ import kotlinx.coroutines.launch
 import java.math.BigInteger
 
 
-
-
-
+@Suppress("NAME_SHADOWING")
 @Composable
 fun LottoApp(
     showRewardedAd: ((onReward: () -> Unit) -> Unit),
@@ -73,7 +68,7 @@ fun LottoApp(
             totalNumbers = TextFieldValue(total)
             numbersToChoose = TextFieldValue(choose)
             val astroInput = AstroPreferencesManager.load(context).first()
-            val savedRank = astroInput.rank?.takeIf { it.isNotBlank() } ?: ""
+            val savedRank = astroInput.rank.takeIf { it.isNotBlank() } ?: ""
             rankInput = TextFieldValue(savedRank)
             initialized = true
         }
@@ -189,7 +184,7 @@ fun LottoApp(
 
                                     val total = lottoSettings.first.toIntOrNull()
                                     val choose = lottoSettings.second.toIntOrNull()
-                                    val rank = astroSettings.rank?.toBigIntegerOrNull()
+                                    val rank = astroSettings.rank.toBigIntegerOrNull()
 
                                     resultText = when {
                                         total == null || choose == null || total <= 0 || choose <= 0 || total < choose ->

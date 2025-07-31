@@ -1,4 +1,4 @@
-package com.zoqo.lottocombinationfinder.ui
+package com.zoqo.lottocombinationfinder.ads
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height

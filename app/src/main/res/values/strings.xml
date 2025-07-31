@@ -8,7 +8,7 @@
     <string name="astro_setings">Astro Finder Settings</string>
     <string name="error_invalid_total_choose">Invalid input for total numbers or numbers to choose.</string>
     <string name="error_invalid_rank">Invalid rank. Enter a number between 1 and %1$d</string>
-    <string name="result_combination">Combination: %1$s</string>
+    <string name="result_combination" translatable="false">Combination: %1$s</string>
     <string name="save_location">Save Location</string>
     <string name="total_numbers">Total Numbers</string>
     <string name="numbers_to_choose">Numbers to Choose</string>

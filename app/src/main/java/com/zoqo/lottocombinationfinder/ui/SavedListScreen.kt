@@ -1,7 +1,6 @@
 //SavedListScreen.kt
 package com.zoqo.lottocombinationfinder.ui
 
-import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,9 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.zoqo.lottocombinationfinder.components.LottoBall
 import com.zoqo.lottocombinationfinder.components.LottoResult
-import com.zoqo.lottocombinationfinder.components.LottoResult2
 import com.zoqo.lottocombinationfinder.data.SavedCombinationsManager
 import kotlinx.coroutines.launch
 
