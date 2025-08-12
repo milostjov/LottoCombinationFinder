@@ -31,6 +31,9 @@ object AstroPreferencesManager {
     private val TOTAL_NUMBERS_KEY = stringPreferencesKey("total_numbers")
     private val NUMBERS_TO_CHOOSE_KEY = stringPreferencesKey("numbers_to_choose")
     private val RANK_INPUT_KEY = stringPreferencesKey("rank_input")
+    private val SELECTED_COUNTRY_KEY = stringPreferencesKey("selected_country")
+    private val SELECTED_GAME_KEY    = stringPreferencesKey("selected_game")
+
 
     suspend fun save(context: Context, data: AstroInputData) {
         context.astroDataStore.edit { prefs ->
@@ -85,4 +88,20 @@ object AstroPreferencesManager {
         }
     }
 
+    // snimi izbor zemlje/igre
+    suspend fun saveLottoSelection(context: Context, country: String, game: String) {
+        context.astroDataStore.edit { prefs ->
+            prefs[SELECTED_COUNTRY_KEY] = country
+            prefs[SELECTED_GAME_KEY] = game
+        }
+    }
+
+    // učitaj izbor zemlje/igre
+    fun loadLottoSelection(context: Context): Flow<Pair<String, String>> {
+        return context.astroDataStore.data.map { prefs ->
+            val country = prefs[SELECTED_COUNTRY_KEY] ?: ""
+            val game = prefs[SELECTED_GAME_KEY] ?: ""
+            country to game
+        }
+    }
 }

@@ -76,9 +76,10 @@ dependencies {
 
 
 
-    implementation(libs.play.services.auth.v2100)
-    implementation(libs.firebase.auth.v2230)
+    implementation(platform(libs.firebase.bom))
 
+
+    implementation(libs.firebase.config.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -93,7 +94,6 @@ dependencies {
     implementation(libs.androidx.compose.material.core)
     implementation(libs.androidx.navigation.common.android)
     implementation(libs.material)
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

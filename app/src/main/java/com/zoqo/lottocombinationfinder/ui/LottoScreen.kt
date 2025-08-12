@@ -39,7 +39,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.math.BigInteger
-
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.zoqo.lottocombinationfinder.viewmodel.LottoGamesViewModel
 
 @Suppress("NAME_SHADOWING")
 @Composable
@@ -49,17 +50,35 @@ fun LottoApp(
 ) {
     val context = LocalContext.current
     var resultText by rememberSaveable { mutableStateOf("") }
-//    var selectedPlanet by rememberSaveable { mutableStateOf("Jupiter") } // podrazumevana vrednost
 
     var totalNumbers by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     var numbersToChoose by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     var rankInput by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+
+    val viewModel: LottoGamesViewModel = viewModel()
+
+    val games by viewModel.lottoGames.collectAsState()
+
+    var selectedGame by rememberSaveable { mutableStateOf("") }
+    var selectedCountry by rememberSaveable { mutableStateOf("") }
+    val selection by remember {
+        AstroPreferencesManager.loadLottoSelection(context)
+    }.collectAsState(initial = "" to "")
+    val scope = rememberCoroutineScope()
 
     val lottoSettings by remember {
         AstroPreferencesManager.loadLottoSettings(context)
     }.collectAsState(initial = null)
 
     var initialized by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(selectedGame) {
+        val selected = games.find { it.name == selectedGame }
+        if (selected != null) {
+            totalNumbers = TextFieldValue(selected.totalNumbers.toString())
+            numbersToChoose = TextFieldValue(selected.numbersToChoose.toString())
+        }
+    }
 
     LaunchedEffect(lottoSettings) {
         val value = lottoSettings
@@ -74,21 +93,26 @@ fun LottoApp(
         }
 
     }
+    LaunchedEffect(games) {
+        if (games.isNotEmpty()) {
+            // 1) pokušaj da vratiš prethodni izbor
+            if (selectedCountry.isEmpty() && selection.first.isNotEmpty()) {
+                selectedCountry = selection.first
+            }
+            if (selectedGame.isEmpty() && selection.second.isNotEmpty()) {
+                // validiraj da igra postoji u listi
+                val exists = games.any { it.name == selection.second }
+                if (exists) selectedGame = selection.second
+            }
+            // 2) fallback ako i dalje nedostaje nešto
+            if (selectedCountry.isEmpty()) selectedCountry = games.first().country
+            if (selectedGame.isEmpty()) {
+                selectedGame = games.firstOrNull { it.country == selectedCountry }?.name
+                    ?: games.first().name
+            }
+        }
+    }
 
-//    LaunchedEffect(initialized) {
-//        if (initialized) {
-//            snapshotFlow {
-//                Triple(totalNumbers.text, numbersToChoose.text, rankInput.text)
-//            }.collectLatest { (total, choose) ->
-//                AstroPreferencesManager.saveLottoSettings(
-//                    context = context.applicationContext,
-//                    total = total,
-//                    choose = choose
-//
-//                )
-//            }
-//        }
-//    }
 
     LaunchedEffect(initialized) {
         if (initialized) {
@@ -148,12 +172,46 @@ fun LottoApp(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             LottoInputFields(
+                commonLottoGames = games
+                    .filter { it.country == selectedCountry || selectedCountry.isEmpty() }
+                    .map { it.name },
+                countries = games.map { it.country }.distinct(),
+                selectedCountry = selectedCountry,
+// kad menjaš zemlju (tamo gde već imaš onCountrySelected)
+                onCountrySelected = { country ->
+                    selectedCountry = country
+                    val firstGame = games.firstOrNull { it.country == country }?.name ?: ""
+                    selectedGame = firstGame
+                    scope.launch {
+                        AstroPreferencesManager.saveLottoSelection(
+                            context = context.applicationContext,
+                            country = selectedCountry,
+                            game = selectedGame
+                        )
+                    }
+                },
+
+
+                        selectedGame = selectedGame,
+                onGameSelected = { game ->
+                    selectedGame = game
+                    scope.launch {
+                        AstroPreferencesManager.saveLottoSelection(
+                            context = context.applicationContext,
+                            country = selectedCountry,
+                            game = selectedGame
+                        )
+                    }
+                },
+
+
+
                 totalNumbers = totalNumbers,
                 onTotalNumbersChange = { totalNumbers = it },
                 numbersToChoose = numbersToChoose,
-                onNumbersToChooseChange = { numbersToChoose = it },
-
+                onNumbersToChooseChange = { numbersToChoose = it }
             )
+
 
 
 
@@ -235,8 +293,6 @@ fun LottoApp(
             LottoResult2(resultText, restartAnimationKey = restartAnimationKey)
         }
     }
-
-
 
 }
 
