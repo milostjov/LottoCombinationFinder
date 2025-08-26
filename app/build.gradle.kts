@@ -15,8 +15,8 @@ android {
         applicationId = "com.zoqo.lottocombinationfinder"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.8"
+        versionCode = 9
+        versionName = "1.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -94,6 +94,10 @@ dependencies {
     implementation(libs.androidx.compose.material.core)
     implementation(libs.androidx.navigation.common.android)
     implementation(libs.material)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

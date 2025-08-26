@@ -1,8 +1,7 @@
-//SavedCombinationsManager.kt
+// SavedCombinationsManager.kt
 package com.zoqo.lottocombinationfinder.data
 
 import android.content.Context
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -25,13 +24,14 @@ object SavedCombinationsManager {
         val minute: Int?,
         val totalNumbers: Int,
         val numbersToChoose: Int,
-        val planetName: String
+        val planetName: String,
+        val gameName: String = ""          // NEW
     )
 
-    // 🔹 Pretvori listu u JSON string za čuvanje
+    // List -> JSON
     private fun List<SavedCombination>.toJson(): String {
         val jsonArray = JSONArray()
-        this.forEach {
+        for (it in this) {
             val obj = JSONObject()
             obj.put("combination", it.combination)
             obj.put("date", it.date?.toString())
@@ -40,12 +40,13 @@ object SavedCombinationsManager {
             obj.put("totalNumbers", it.totalNumbers)
             obj.put("numbersToChoose", it.numbersToChoose)
             obj.put("planetName", it.planetName)
+            obj.put("gameName", it.gameName)    // NEW
             jsonArray.put(obj)
         }
         return jsonArray.toString()
     }
 
-    // 🔹 Pretvori JSON nazad u listu
+    // JSON -> List (back-compat: gameName je opcionalan)
     private fun String.toSavedList(): MutableList<SavedCombination> {
         val list = mutableListOf<SavedCombination>()
         val jsonArray = JSONArray(this)
@@ -59,7 +60,8 @@ object SavedCombinationsManager {
                     minute = obj.optInt("minute"),
                     totalNumbers = obj.optInt("totalNumbers"),
                     numbersToChoose = obj.optInt("numbersToChoose"),
-                    planetName = obj.optString("planetName")
+                    planetName = obj.optString("planetName"),
+                    gameName = obj.optString("gameName", "") // NEW
                 )
             )
         }
@@ -71,52 +73,63 @@ object SavedCombinationsManager {
      */
     suspend fun saveCombination(
         context: Context,
-        combination: String,
+        combination: String,      // očekujemo "Combination: a, b, c + x, y" ili bez bonusa
         date: LocalDate?,
         hour: Int?,
         minute: Int?,
         totalNumbers: Int,
         numbersToChoose: Int,
-        planetName: String
+        planetName: String,
+        gameName: String          // NEW
     ) {
         context.dataStore.edit { prefs ->
             val currentList = prefs[KEY_SAVED_LIST]?.toSavedList() ?: mutableListOf()
-            val cleanedCombination = combination
-                .removePrefix("Combination:")
-                .split(",")
-                .mapNotNull { it.trim().toIntOrNull() }
-                .joinToString(",")
-            // dodaj novu na početak liste
+
+            // Normalizuj i sačuvaj ceo tiket (ne seckati po zarezima!)
+            val raw = combination.removePrefix("Combination:").trim()
+            val parts = raw.split("+").map { it.trim() }
+
+            fun parseNums(s: String?): List<Int> =
+                if (s.isNullOrBlank()) emptyList()
+                else Regex("""\d+""").findAll(s).map { it.value.toInt() }.toList()
+
+            val main = parseNums(parts.getOrNull(0))
+            val bonus = parseNums(parts.getOrNull(1))
+
+            val normalized = buildString {
+                append("Combination: ")
+                append(main.joinToString(", "))
+                if (bonus.isNotEmpty()) {
+                    append(" + ")
+                    append(bonus.joinToString(", "))
+                }
+            }
+
             currentList.add(
                 0,
                 SavedCombination(
-                    cleanedCombination, date, hour, minute,
-                    totalNumbers, numbersToChoose, planetName
+                    combination = normalized,
+                    date = date,
+                    hour = hour,
+                    minute = minute,
+                    totalNumbers = totalNumbers,
+                    numbersToChoose = numbersToChoose,
+                    planetName = planetName,
+                    gameName = gameName          // NEW
                 )
             )
 
-            // ograniči na poslednjih 50
-            val trimmed = currentList.take(50)
-            prefs[KEY_SAVED_LIST] = trimmed.toJson()
+            prefs[KEY_SAVED_LIST] = currentList.take(50).toJson()
         }
     }
 
-    /**
-     * Vrati flow svih sačuvanih kombinacija
-     */
-    fun getSavedCombinations(context: Context): Flow<List<SavedCombination>> {
-        return context.dataStore.data.map { prefs ->
+    fun getSavedCombinations(context: Context): Flow<List<SavedCombination>> =
+        context.dataStore.data.map { prefs ->
             prefs[KEY_SAVED_LIST]?.toSavedList() ?: emptyList()
         }
-    }
 
-    /**
-     * Obrisi sve sacuvane kombinacije
-     */
     suspend fun clearAll(context: Context) {
-        context.dataStore.edit { prefs ->
-            prefs.remove(KEY_SAVED_LIST)
-        }
+        context.dataStore.edit { prefs -> prefs.remove(KEY_SAVED_LIST) }
     }
 
     suspend fun deleteCombination(context: Context, combination: String) {
@@ -126,5 +139,4 @@ object SavedCombinationsManager {
             prefs[KEY_SAVED_LIST] = newList.toJson()
         }
     }
-
 }

@@ -94,8 +94,8 @@ class MainActivity : ComponentActivity() {
 
         hasShownStartupAd = savedInstanceState?.getBoolean("shown_ad") ?: false
 
-        initMobileAds()
-        preloadOtherAds()
+        //initMobileAds()  //      REKLAME
+        //preloadOtherAds() //     REKLAME
 
         if (!hasShownStartupAd && AdHelper.canShowStartupAd(this)) {
             setSplashUI()

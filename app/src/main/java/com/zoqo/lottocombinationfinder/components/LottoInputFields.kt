@@ -1,49 +1,48 @@
+// LottoInputFields.kt
 package com.zoqo.lottocombinationfinder.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
+//import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.zoqo.lottocombinationfinder.R
-
-
+import com.zoqo.lottocombinationfinder.viewmodel.LottoGamesViewModel
+import com.zoqo.lottocombinationfinder.viewmodel.CountryUi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LottoInputFields(
     commonLottoGames: List<String>,
     selectedGame: String,
     onGameSelected: (String) -> Unit,
-    countries: List<String>,
-    selectedCountry: String,
-    onCountrySelected: (String) -> Unit,
+
+    countries: List<CountryUi>,      // ⬅⬅ promena
+    selectedCountryLabel: String,    // prikaz u polju (npr. "USA"/"SAD")
+    onCountrySelected: (CountryUi) -> Unit, // ⬅⬅ vrati ceo objekat
+
     totalNumbers: TextFieldValue,
     onTotalNumbersChange: (TextFieldValue) -> Unit,
     numbersToChoose: TextFieldValue,
     onNumbersToChooseChange: (TextFieldValue) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expandedGame by remember { mutableStateOf(false) }
     var expandedCountry by remember { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-
-
 
         // 📌 Dropdown za izbor države
         ExposedDropdownMenuBox(
@@ -51,11 +50,11 @@ fun LottoInputFields(
             onExpandedChange = { expandedCountry = !expandedCountry }
         ) {
             OutlinedTextField(
-                value = selectedCountry,
+                value = selectedCountryLabel,
                 onValueChange = {},
                 label = { Text("Choose a Country") },
                 modifier = Modifier
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                    .menuAnchor()
                     .fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCountry) }
@@ -64,11 +63,30 @@ fun LottoInputFields(
                 expanded = expandedCountry,
                 onDismissRequest = { expandedCountry = false }
             ) {
-                countries.forEach { country ->
+                countries.forEach { item ->
                     DropdownMenuItem(
-                        text = { Text(country) },
+                        text = {
+                            androidx.compose.foundation.layout.Row(
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                            ) {
+                                if (!item.flagUrl.isNullOrBlank()) {
+                                    coil.compose.AsyncImage(
+                                        model = coil.request.ImageRequest.Builder(LocalContext.current)
+                                            .data(item.flagUrl)
+                                            .decoderFactory(coil.decode.SvgDecoder.Factory()) // SVG podrška
+                                            .build(),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(3.dp))
+                                    )
+                                    androidx.compose.foundation.layout.Spacer(Modifier.size(8.dp))
+                                }
+                                Text(item.display)
+                            }
+                        },
                         onClick = {
-                            onCountrySelected(country)
+                            onCountrySelected(item)
                             expandedCountry = false
                         }
                     )
@@ -78,29 +96,29 @@ fun LottoInputFields(
 
         // 📌 Dropdown za izbor igre
         ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            expanded = expandedGame,
+            onExpandedChange = { expandedGame = !expandedGame }
         ) {
             OutlinedTextField(
                 value = selectedGame,
                 onValueChange = {},
                 label = { Text("Choose a Lottery Game") },
                 modifier = Modifier
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                    .menuAnchor()
                     .fillMaxWidth(),
                 readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGame) }
             )
             ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+                expanded = expandedGame,
+                onDismissRequest = { expandedGame = false }
             ) {
                 commonLottoGames.forEach { game ->
                     DropdownMenuItem(
                         text = { Text(game) },
                         onClick = {
                             onGameSelected(game)
-                            expanded = false
+                            expandedGame = false
                         }
                     )
                 }
@@ -112,7 +130,7 @@ fun LottoInputFields(
             value = totalNumbers,
             onValueChange = onTotalNumbersChange,
             label = { Text(stringResource(R.string.total_numbers)) },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -121,7 +139,7 @@ fun LottoInputFields(
             value = numbersToChoose,
             onValueChange = onNumbersToChooseChange,
             label = { Text(stringResource(R.string.numbers_to_choose)) },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
     }

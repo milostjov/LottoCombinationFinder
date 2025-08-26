@@ -49,37 +49,51 @@ fun SavedListScreen() {
                         modifier = Modifier.fillMaxWidth(),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            // ✅ Prikaz kombinacije pomoću LottoResult
-                            LottoResult("Combination: ${item.combination}", restartAnimationKey = 0L, modifier = Modifier.weight(1f))
-                            Spacer(modifier = Modifier.width(8.dp)) // ➜ dodat razmak
-                            // Ikonica za brisanje
-                            IconButton(onClick = {
-                                scope.launch {
-                                    SavedCombinationsManager.deleteCombination(
-                                        context,
-                                        item.combination
+                        Column(Modifier.padding(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = item.gameName.ifBlank { "Custom" },   // fallback za stare zapise
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                val whenStr = listOfNotNull(
+                                    item.date?.toString(),
+                                    item.hour?.let { h -> item.minute?.let { m -> "%02d:%02d".format(h, m) } }
+                                ).joinToString(" · ")
+                                Text(whenStr, style = MaterialTheme.typography.labelSmall)
+                                Text(item.planetName.ifBlank { " " }, style = MaterialTheme.typography.labelSmall)
+                                IconButton(onClick = {
+                                    scope.launch {
+                                        SavedCombinationsManager.deleteCombination(
+                                            context,
+                                            item.combination
+                                        )
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete",
+                                        tint = MaterialTheme.colorScheme.error
                                     )
                                 }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    tint = MaterialTheme.colorScheme.error // ili Color.Red
-                                )
                             }
+
+                            Spacer(Modifier.height(8.dp))
+
+                            // kombinacija (ne dodavati "Combination:")
+                            LottoResult(
+                                resultText = item.combination,
+                                restartAnimationKey = 0L,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }
-
             }
+
         }
     }
 }

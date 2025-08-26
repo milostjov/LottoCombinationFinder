@@ -53,7 +53,9 @@ object AstroRankCalculator {
         minute: Int,
         totalNumbers: Int,
         numbersToChoose: Int,
-        planetName: String
+        planetName: String,
+        ticketIndex: Int = 0,     // NEW: indeks tiketa (0,1,2…)
+        extraSalt: Long = 0L      // NEW: opciono, ako želiš dodatni seed
     ): BigInteger {
         val timeDecimal = toDecimalTime(hour, minute)
 
@@ -117,6 +119,10 @@ object AstroRankCalculator {
 
         val cycle = pseudoCycleMinutes[planetName] ?: 14400
         val variationAmplitude = totalBigDecimal.multiply(BigDecimal("0.005")) // 0.5% odstupanja
+
+        // NEW: fazni pomak po tiketu (90° korak), plus opciona so.
+        val phaseByTicket = ticketIndex * (Math.PI / 2) // 0, 90°, 180°, 270°...
+        val phaseBySalt = ((extraSalt % 360 + 360) % 360) * (Math.PI / 180.0)
 
         val angle = 2 * Math.PI * (timeInMinutes % cycle) / cycle
         val variation = Math.sin(angle).toBigDecimal().multiply(variationAmplitude)
