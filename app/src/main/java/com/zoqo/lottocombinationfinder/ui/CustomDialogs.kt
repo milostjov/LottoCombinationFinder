@@ -9,7 +9,9 @@ import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SignalWifiOff
@@ -155,25 +157,148 @@ private fun NumberPicker.applyTextColor(@ColorInt color: Int) {
 @Composable
 
 fun PlanetInfoDialog(
-    planetSymbol: String,
+    planet: com.zoqo.lottocombinationfinder.data.PlanetData,
     onDismiss: () -> Unit
 ) {
-    val name = getPlanetName(planetSymbol)
-    val description = getPlanetDescription(planetSymbol)
-
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = name) },
-        text = { Text(text = description) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.ok))
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "${planet.symbol} ${planet.name}", style = MaterialTheme.typography.titleLarge)
+                if (planet.retrograde) {
+                    Text(
+                        text = stringResource(R.string.retrograde_planet),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
+        },
+        text = {
+            Column {
+
+                // 1) Znak i stepen (iz dužine)
+                val (signIdx, degInSign) = lonToSignParts(planet.longitude)
+                val zodiac = listOf("♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓")
+                val zodiacNames = listOf(
+                    stringResource(R.string.sign_aries),
+                    stringResource(R.string.sign_taurus),
+                    stringResource(R.string.sign_gemini),
+                    stringResource(R.string.sign_cancer),
+                    stringResource(R.string.sign_leo),
+                    stringResource(R.string.sign_virgo),
+                    stringResource(R.string.sign_libra),
+                    stringResource(R.string.sign_scorpio),
+                    stringResource(R.string.sign_sagittarius),
+                    stringResource(R.string.sign_capricorn),
+                    stringResource(R.string.sign_aquarius),
+                    stringResource(R.string.sign_pisces)
+                )
+
+                InfoRow(label = stringResource(R.string.label_sign_degree),
+                    value = "${zodiac[signIdx]} ${zodiacNames[signIdx]} — ${formatDMS(degInSign)}")
+
+                // 2) Apsolutna ekliptička dužina
+                InfoRow(stringResource(R.string.label_ecl_lon), "${formatDMS(planet.longitude)}")
+
+                // 3) Ekliptička širina (ako ima)
+                planet.latitude?.let {
+                    InfoRow(stringResource(R.string.label_ecl_lat), formatDMS(it))
+                }
+
+                // 4) Brzina po dužini
+                planet.speedLonDegPerDay?.let {
+                    val tag = if (it < 0) "R" else "D"
+                    InfoRow(stringResource(R.string.label_speed_lon), "${round(it, 5)} ($tag)")
+
+                }
+
+                // 5) Distanca (AU)
+                planet.distanceAu?.let {
+                    InfoRow(stringResource(R.string.label_distance), "${round(it, 6)} AU")
+                }
+
+                // 6) Kuća
+                planet.house?.let {
+                    InfoRow(stringResource(R.string.label_house), it.toString())
+                }
+
+                // 7) Ekvatorijalne koordinate
+                planet.rightAscension?.let {
+                    InfoRow(stringResource(R.string.label_ra), formatHMS(it))
+                }
+                planet.declination?.let {
+                    InfoRow(stringResource(R.string.label_dec), formatDMS(it))
+                }
+
+                // 8) Lokalni horizont
+                planet.altitude?.let {
+                    InfoRow(stringResource(R.string.label_alt), formatDMS(it))
+                }
+                planet.azimuth?.let {
+                    InfoRow(stringResource(R.string.label_az), formatDMS(it))
+                }
+
+                // 9) Kratak opis (postojeći opis po simbolu)
+                Spacer(Modifier.fillMaxWidth().let { Modifier })
+                Text(
+                    text = getPlanetDescription(planet.symbol),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ok)) }
         }
     )
 }
 
+/** Reusable UI helper */
+@Composable
+private fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium)
+        Text(value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
 
+/** Helpers za formatiranje i znak/stepen */
+private fun lonToSignParts(lon: Double): Pair<Int, Double> {
+    val norm = ((lon % 360.0) + 360.0) % 360.0
+    val signIdx = (norm / 30.0).toInt()
+    val degInSign = norm - signIdx * 30.0
+    return signIdx to degInSign
+}
+
+private fun formatDMS(deg: Double): String {
+    val sign = if (deg < 0) "-" else ""
+    var d = kotlin.math.abs(deg)
+    val D = kotlin.math.floor(d).toInt()
+    d = (d - D) * 60
+    val M = kotlin.math.floor(d).toInt()
+    val S = ((d - M) * 60)
+    return "%s%02d° %02d' %05.2f\"".format(sign, D, M, S)
+}
+
+private fun formatHMS(hoursOrDeg: Double): String {
+    // Ako RA već dobijaš u satima iz SE, prosledi kao je; ako je u stepenima, konvertuj pre poziva.
+    val sign = if (hoursOrDeg < 0) "-" else ""
+    var h = kotlin.math.abs(hoursOrDeg)
+    val H = kotlin.math.floor(h).toInt()
+    h = (h - H) * 60
+    val M = kotlin.math.floor(h).toInt()
+    val S = ((h - M) * 60)
+    return "%s%02dh %02dm %05.2fs".format(sign, H, M, S)
+}
+
+private fun round(value: Double, digits: Int): String = "%.${digits}f".format(value)
 @Composable
 fun getPlanetName(symbol: String): String = when (symbol) {
     "☉" -> stringResource(R.string.planet_sun)
@@ -186,6 +311,10 @@ fun getPlanetName(symbol: String): String = when (symbol) {
     "♅" -> stringResource(R.string.planet_uranus)
     "♆" -> stringResource(R.string.planet_neptune)
     "♇" -> stringResource(R.string.planet_pluto)
+    "☊" -> stringResource(R.string.planet_northnode)
+    "☋" -> stringResource(R.string.planet_southnode)
+    "⚸" -> stringResource(R.string.planet_lilith)
+    "⚷" -> stringResource(R.string.planet_chiron)
     else -> stringResource(R.string.planet_unknown)
 }
 
@@ -201,8 +330,13 @@ fun getPlanetDescription(symbol: String): String = when (symbol) {
     "♅" -> stringResource(R.string.desc_uranus)
     "♆" -> stringResource(R.string.desc_neptune)
     "♇" -> stringResource(R.string.desc_pluto)
+    "☊" -> stringResource(R.string.desc_northnode)
+    "☋" -> stringResource(R.string.desc_southnode)
+    "⚸" -> stringResource(R.string.desc_lilith)
+    "⚷" -> stringResource(R.string.desc_chiron)
     else -> stringResource(R.string.desc_unknown)
 }
+
 
 fun Context.hasInternetConnection(): Boolean {
     val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

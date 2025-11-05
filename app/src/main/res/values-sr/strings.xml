@@ -63,9 +63,80 @@ U svakoj igri na sreću zasnovanoj na izvlačenju brojeva postoji određeni redo
     <string name="watch_ad_description">Pogledajte kratak video da biste dobili svoju brojčanu kombinaciju.</string>
     <string name="watch_ad_confirm">Gledaj</string>
     <string name="watch_ad_cancel">Otkaži</string>
-    <string name="retrograde_planet">Retrogradna planeta</string>
+    <string name="retrograde_planet">Retrogradno</string>
     <string name="saved_combinations">Sačuvane kombinacije</string>
 
+    <!-- Merkur -->
+    <string name="planet_mercury_theme">Komunikacija, dokumenta, putovanja</string>
+    <string name="planet_mercury_hint">Preispitaj nesporazume, revidiraj dogovore, napravi rezervne kopije podataka.</string>
 
+    <!-- Venera -->
+    <string name="planet_venus_theme">Odnosi, vrednosti, finansije</string>
+    <string name="planet_venus_hint">Introspekcija u ljubavi i troškovima; ponovo proceni šta (i koga) zaista ceniš.</string>
+
+    <!-- Mars -->
+    <string name="planet_mars_theme">Akcija, energija, inicijativa</string>
+    <string name="planet_mars_hint">Uspori; pažljivo planiraj i završi stare zadatke pre nego što započneš nove.</string>
+
+    <!-- Jupiter -->
+    <string name="planet_jupiter_theme">Rast, učenje, vizije</string>
+    <string name="planet_jupiter_hint">Preispitaj pravac svog razvoja; učvrsti principe pre nego što se proširiš.</string>
+
+    <!-- Saturn -->
+    <string name="planet_saturn_theme">Struktura, obaveze, granice</string>
+    <string name="planet_saturn_hint">Ponovo razmotri odgovornosti; popravi i ojačaj dugoročne temelje.</string>
+
+    <!-- Uran -->
+    <string name="planet_uranus_theme">Promene, inovacije, sloboda</string>
+    <string name="planet_uranus_hint">Osveži se iznutra; planiraj promene umesto da ih forsiraš.</string>
+
+    <!-- Neptun -->
+    <string name="planet_neptune_theme">Intuicija, ideali, iluzije</string>
+    <string name="planet_neptune_hint">Razjasni svoje snove; proveri inspiracije kroz realnost.</string>
+
+    <!-- Pluton -->
+    <string name="planet_pluto_theme">Transformacija, moć, dubine</string>
+    <string name="planet_pluto_hint">Dubinsko čišćenje; otpusti staro da bi napravio prostor za novo.</string>
+
+    <!-- Sunce -->
+    <string name="planet_sun_theme">Identitet, vitalnost</string>
+    <string name="planet_sun_hint">Preispitaj lične ciljeve i fokus.</string>
+
+    <!-- Mesec -->
+    <string name="planet_moon_theme">Emocije, navike</string>
+    <string name="planet_moon_hint">Uspori ritam; obrati pažnju na potrebe i osećaj sigurnosti.</string>
+
+    <!-- Retrogradni - zajednički stringovi -->
+    <string name="retro_warning">%1$s je retrogradan</string>
+    <string name="retro_badge">Retrogradno • introspekcija</string>
+    <string name="retro_generic_hint">Vreme za introspekciju, usporavanje i preispitivanje započetih stvari.</string>
+    <string name="retro_theme_default">Opšta tema</string>
+    <string name="retro_fallback_hint">Usmeri se na završavanje starih zadataka i reviziju planova.</string>
+    <string name="retro_theme_prefix">Tema: %1$s. %2$s</string>
+
+
+    <string name="label_sign_degree">Znak / stepen</string>
+    <string name="label_ecl_lon">Ekl. dužina</string>
+    <string name="label_ecl_lat">Ekl. širina</string>
+    <string name="label_speed_lon">Brzina λ (°/dan)</string>
+    <string name="label_distance">Distanca</string>
+    <string name="label_house">Kuća</string>
+    <string name="label_ra">RA</string>
+    <string name="label_dec">Deklinacija</string>
+    <string name="label_alt">Visina</string>
+    <string name="label_az">Azimut</string>
+
+    <string name="sign_aries">Ovan</string>
+    <string name="sign_taurus">Bik</string>
+    <string name="sign_gemini">Blizanci</string>
+    <string name="sign_cancer">Rak</string>
+    <string name="sign_leo">Lav</string>
+    <string name="sign_virgo">Devica</string>
+    <string name="sign_libra">Vaga</string>
+    <string name="sign_scorpio">Škorpija</string>
+    <string name="sign_sagittarius">Strelac</string>
+    <string name="sign_capricorn">Jarac</string>
+    <string name="sign_aquarius">Vodolija</string>
+    <string name="sign_pisces">Ribe</string>
 
 </resources>

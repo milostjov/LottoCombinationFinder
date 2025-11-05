@@ -2,19 +2,19 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.21"
     id("com.google.gms.google-services")
 
 }
 
 android {
     namespace = "com.zoqo.lottocombinationfinder"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.zoqo.lottocombinationfinder"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 9
         versionName = "1.9"
 
@@ -49,9 +49,9 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.6.7"
-    }
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.6.7"
+//    }
 
     packaging {
         resources {
@@ -66,21 +66,13 @@ android {
 dependencies {
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.material.icons.extended)
-
     implementation(libs.maplibre)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.location)
-
-
-
     implementation(platform(libs.firebase.bom))
-
-
     implementation(libs.firebase.config.ktx)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -91,19 +83,28 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.accompanist.flowlayout)
     implementation(libs.play.services.ads)
-    implementation(libs.androidx.compose.material.core)
     implementation(libs.androidx.navigation.common.android)
     implementation(libs.material)
-
     implementation(libs.coil.compose)
     implementation(libs.coil.svg)
-
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    // AdMob SDK (već si ga imao – koristimo alias koji radi)
+    implementation(libs.play.services.ads)
+
+    // UMP
+    implementation(libs.google.ump)
+
+    // Mediation adapteri
+    implementation(libs.google.ads.mediation.facebook)
+    implementation(libs.google.ads.mediation.unity)
+
+    // Debug
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

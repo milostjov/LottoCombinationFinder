@@ -35,6 +35,12 @@
     <string name="planet_uranus">Uranus</string>
     <string name="planet_neptune">Neptune</string>
     <string name="planet_pluto">Pluto</string>
+    <string name="planet_northnode">North Node</string>
+    <string name="planet_southnode">South Node</string>
+    <string name="planet_lilith">Lilith</string>
+    <string name="planet_chiron">Chiron</string>
+
+
     <string name="planet_unknown">Unknown planet</string>
     <string name="desc_sun">The Sun represents your core, identity, and vitality.</string>
     <string name="desc_moon">The Moon symbolizes emotions, instincts, and the inner world.</string>
@@ -46,7 +52,14 @@
     <string name="desc_uranus">Uranus is the planet of change, freedom, and innovation.</string>
     <string name="desc_neptune">Neptune relates to intuition, dreams, and spirituality.</string>
     <string name="desc_pluto">Pluto symbolizes transformation, power, and regeneration.</string>
+    <string name="desc_northnode">The North Node represents destiny, evolution, and lessons for growth.</string>
+    <string name="desc_southnode">The South Node shows past experiences, habits, and karmic patterns to release.</string>
+    <string name="desc_lilith">Lilith (Black Moon) symbolizes instinct, independence, and the raw unconscious self.</string>
+    <string name="desc_chiron">Chiron represents healing, vulnerability, and wisdom gained through pain.</string>
+
     <string name="desc_unknown">No data available.</string>
+
+
     <string name="rank_info_title">What is Combination Rank?</string>
     <string name="rank_info_text">
 In every number-based lottery game, there\'s a certain order in which winning numbers are drawn. The "rank" in this app reflects your personal alignment with that order. It is calculated based on the distance of your selected planet from Earth at the exact date and time of the draw. This cosmic relationship can subtly influence which number combinations are most in sync with you.
@@ -60,8 +73,99 @@ In every number-based lottery game, there\'s a certain order in which winning nu
     <string name="watch_ad_description">Watch a short video to get your number combination.</string>
     <string name="watch_ad_confirm">Watch</string>
     <string name="watch_ad_cancel">Cancel</string>
-    <string name="retrograde_planet">Retrograde Planet</string>
+    <string name="retrograde_planet">Retrograde</string>
     <string name="saved_combinations">Saved Combinations</string>
+    <!-- Mercury -->
+    <string name="planet_mercury_theme">Communication, documents, travel</string>
+    <string name="planet_mercury_hint">Review misunderstandings, revise agreements, back up data.</string>
+
+    <!-- Venus -->
+    <string name="planet_venus_theme">Relationships, values, finances</string>
+    <string name="planet_venus_hint">Introspection in love and expenses; re-evaluate what (and who) you value.</string>
+
+    <!-- Mars -->
+    <string name="planet_mars_theme">Action, energy, initiative</string>
+    <string name="planet_mars_hint">Slow down; plan carefully, finish old tasks before starting new ones.</string>
+
+    <!-- Jupiter -->
+    <string name="planet_jupiter_theme">Growth, learning, visions</string>
+    <string name="planet_jupiter_hint">Reconsider the direction of growth; solidify principles before expanding.</string>
+
+    <!-- Saturn -->
+    <string name="planet_saturn_theme">Structure, duties, boundaries</string>
+    <string name="planet_saturn_hint">Revisit responsibilities; repair and strengthen long-term foundations.</string>
+
+    <!-- Uranus -->
+    <string name="planet_uranus_theme">Change, innovation, freedom</string>
+    <string name="planet_uranus_hint">Refresh internally; plan changes instead of forcing them.</string>
+
+    <!-- Neptune -->
+    <string name="planet_neptune_theme">Intuition, ideals, illusions</string>
+    <string name="planet_neptune_hint">Clarify your dreams; validate inspirations with reality.</string>
+
+    <!-- Pluto -->
+    <string name="planet_pluto_theme">Transformation, power, depths</string>
+    <string name="planet_pluto_hint">Deep cleansing; release the old to make room for the new.</string>
+
+    <!-- Sun -->
+    <string name="planet_sun_theme">Identity, vitality</string>
+    <string name="planet_sun_hint">Review personal goals and focus.</string>
+
+    <!-- Moon -->
+    <string name="planet_moon_theme">Emotions, habits</string>
+    <string name="planet_moon_hint">Slow down your rhythm; pay attention to needs and security.</string>
+
+    <!-- North Node -->
+    <string name="planet_northnode_theme">Destiny, direction of growth</string>
+    <string name="planet_northnode_hint">Follow paths that challenge comfort; focus on lessons that move you forward.</string>
+
+    <!-- South Node -->
+    <string name="planet_southnode_theme">Karma, past patterns</string>
+    <string name="planet_southnode_hint">Release repetitive habits and attachments; transform experience into wisdom.</string>
+
+    <!-- Lilith (Black Moon) -->
+    <string name="planet_lilith_theme">Instinct, independence, shadow</string>
+    <string name="planet_lilith_hint">Embrace inner power and raw truth; integrate what’s been suppressed.</string>
+
+    <!-- Chiron -->
+    <string name="planet_chiron_theme">Healing, vulnerability, wisdom</string>
+    <string name="planet_chiron_hint">Turn wounds into strengths; share empathy born from personal healing.</string>
+
+
+    <!-- Retrograde shared strings -->
+    <string name="retro_warning">%1$s is retrograde</string>
+    <string name="retro_badge">Retrograde • introspection</string>
+    <string name="retro_generic_hint">Time for introspection, slowing down, and reviewing what’s been started.</string>
+    <string name="retro_theme_default">General theme</string>
+    <string name="retro_fallback_hint">Focus on finishing old tasks and making revisions.</string>
+    <string name="retro_theme_prefix">Theme: %1$s. %2$s</string>
+
+
+
+
+    <string name="label_sign_degree">Sign / Degree</string>
+    <string name="label_ecl_lon">Ecliptic Longitude</string>
+    <string name="label_ecl_lat">Ecliptic Latitude</string>
+    <string name="label_speed_lon">Longitude Speed (°/day)</string>
+    <string name="label_distance">Distance</string>
+    <string name="label_house">House</string>
+    <string name="label_ra">Right Ascension (RA)</string>
+    <string name="label_dec">Declination (Dec)</string>
+    <string name="label_alt">Altitude</string>
+    <string name="label_az">Azimuth</string>
+
+    <string name="sign_aries">Aries</string>
+    <string name="sign_taurus">Taurus</string>
+    <string name="sign_gemini">Gemini</string>
+    <string name="sign_cancer">Cancer</string>
+    <string name="sign_leo">Leo</string>
+    <string name="sign_virgo">Virgo</string>
+    <string name="sign_libra">Libra</string>
+    <string name="sign_scorpio">Scorpio</string>
+    <string name="sign_sagittarius">Sagittarius</string>
+    <string name="sign_capricorn">Capricorn</string>
+    <string name="sign_aquarius">Aquarius</string>
+    <string name="sign_pisces">Pisces</string>
 
 
 </resources>

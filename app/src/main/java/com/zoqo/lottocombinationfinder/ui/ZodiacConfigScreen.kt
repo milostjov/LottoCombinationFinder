@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -40,6 +41,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -69,6 +71,37 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Locale
+import com.zoqo.lottocombinationfinder.astro.AstroCalculator
+import com.zoqo.lottocombinationfinder.astro.AstroInterpreter
+import com.zoqo.lottocombinationfinder.astro.RetrogradeAdvice
+import com.zoqo.lottocombinationfinder.ui.AstroInputData
+import swisseph.SweConst
+private val PLANET_KEY_TO_ID = mapOf(
+    "Sun" to SweConst.SE_SUN,
+    "Moon" to SweConst.SE_MOON,
+    "Mercury" to SweConst.SE_MERCURY,
+    "Venus" to SweConst.SE_VENUS,
+    "Mars" to SweConst.SE_MARS,
+    "Jupiter" to SweConst.SE_JUPITER,
+    "Saturn" to SweConst.SE_SATURN,
+    "Uranus" to SweConst.SE_URANUS,
+    "Neptune" to SweConst.SE_NEPTUNE,
+    "Pluto" to SweConst.SE_PLUTO
+)
+
+private fun symbolFor(planetId: Int): String = when (planetId) {
+    SweConst.SE_SUN -> "☉"
+    SweConst.SE_MOON -> "☽"
+    SweConst.SE_MERCURY -> "☿"
+    SweConst.SE_VENUS -> "♀"
+    SweConst.SE_MARS -> "♂"
+    SweConst.SE_JUPITER -> "♃"
+    SweConst.SE_SATURN -> "♄"
+    SweConst.SE_URANUS -> "♅"
+    SweConst.SE_NEPTUNE -> "♆"
+    SweConst.SE_PLUTO -> "♇"
+    else -> "?"
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,15 +113,27 @@ fun AstroUserInputScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+
     var birthDate by remember { mutableStateOf(LocalDate.now()) }
     var birthHour by remember { mutableStateOf(12) }
     var birthMinute by remember { mutableStateOf(0) }
 
-    ////
+    var inputData by remember {
+        mutableStateOf(
+            AstroInputData(
+                date = java.time.LocalDate.now(),
+                hour = 12,
+                minute = 0
+            )
+        )
+    }
     // u AstroUserInputScreen
     var selectedPlanet by remember { mutableStateOf("Mars") } // podrazumevana planeta
-    var extraBodies by remember { mutableStateOf(emptyList<String>()) }
-    var extraBodiesText by remember { mutableStateOf("") }
+
+    // izvedeni ID iz string ključa – koristi se za retro upozorenje
+    val selectedPlanetId by remember(selectedPlanet) {
+        mutableStateOf(PLANET_KEY_TO_ID[selectedPlanet] ?: SweConst.SE_MARS)
+    }
 
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
@@ -106,18 +151,23 @@ fun AstroUserInputScreen(
 
 
     // Load preferences
+    var isLoaded by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-        AstroPreferencesManager.load(context).collectLatest { data ->
+        AstroPreferencesManager.load(context).first().let { data ->
             birthDate = data.date
             birthHour = data.hour
             birthMinute = data.minute
             rankInput = data.rank
             selectedPlanet = data.extraBodies?.firstOrNull() ?: "Mars"
-
-            extraBodies = data.extraBodies ?: emptyList()
-            extraBodiesText = extraBodies.joinToString(", ")
-
+            isLoaded = true
         }
+    }
+
+    if (!isLoaded) {
+        // prikaži skeleton/loader umesto inputa
+        CircularProgressIndicator(modifier = Modifier.padding(24.dp))
+        return
     }
 
     Column(
@@ -156,6 +206,7 @@ fun AstroUserInputScreen(
                         datePickerState.selectedDateMillis?.let { millis ->
                             birthDate = Instant.ofEpochMilli(millis)
                                 .atZone(ZoneId.systemDefault()).toLocalDate()
+                            inputData = inputData.copy(date = birthDate)
                             savePreferences(context, scope, birthDate, birthHour, birthMinute, selectedPlanet, rankInput)
 
                         }
@@ -204,6 +255,7 @@ fun AstroUserInputScreen(
                     birthHour = hour
                     birthMinute = minute
                     formattedTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute) // osveži prikaz
+                    inputData = inputData.copy(hour = birthHour, minute = birthMinute)
                     savePreferences(context, scope, birthDate, birthHour, birthMinute, selectedPlanet, rankInput)
 
                 }
@@ -221,6 +273,10 @@ fun AstroUserInputScreen(
 
             }
 
+        )
+        RetrogradeInlineWarning(
+            inputData = inputData,
+            planetId = selectedPlanetId
         )
 
 
@@ -414,6 +470,38 @@ fun RankDisplayField(rankInput: String) {
             },
             title = { Text(stringResource(R.string.enter_rank_hint)) },
             text = { Text(stringResource(R.string.rank_info_text)) }
+        )
+    }
+}
+
+
+@Composable
+fun RetrogradeInlineWarning(
+    inputData: AstroInputData,
+    planetId: Int
+) {
+    val context = LocalContext.current
+    var warning by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(inputData, planetId) {
+        val planets = AstroCalculator.getPlanetPositions(inputData)
+        val advisories = AstroInterpreter.buildRetrogradeAdvisories(context, planets)
+
+        val symbol = symbolFor(planetId)
+        val adv = advisories.find { it.symbol == symbol }
+
+        warning = if (adv?.isRetrograde == true) {
+            // koristi string iz resources
+            AstroInterpreter.shortBadgeText(context, adv)
+        } else null
+    }
+
+    warning?.let { msg ->
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = msg,
+            color = Color.Red, // 🔴 crveno upozorenje
+            style = MaterialTheme.typography.bodySmall
         )
     }
 }
